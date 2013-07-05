@@ -15,16 +15,25 @@ using System.Web.Routing;
 
 namespace _min
 {
+ 
+    /// <summary>
+    /// Initializes basic application objects and provides them to child sites
+    /// </summary>
     public partial class MinMaster : System.Web.UI.MasterPage
     {
+        
         public _min.Models.Architect Architect { get; private set; }
         public ISystemDriver SysDriver { get; private set; }
         public IWebDriver WebDriver { get; private set; }
         public IStats Stats { get; private set; }
         public string ProjectName { get; private set; }
+        
         public MembershipUser user = null;
         public DbServer DbServer;
 
+        /// <summary>
+        /// The main entry point of the application - initializes database drivers, checks access rights, detects the current page type and does more setting accordingly.
+        /// </summary>
         protected void Page_Init(object sender, EventArgs e)
         {
             DbServer = (DbServer)Enum.Parse(typeof(DbServer), System.Configuration.ConfigurationManager.AppSettings["ServerType"] as string);
@@ -36,6 +45,7 @@ namespace _min
                     (user is MembershipUser) ? (Session.Timeout - 5).ToString() :"-1";
 
 
+            // detect the site type based on the beginning of the URL
             string lp = Request.Url.LocalPath;
 
             if (lp.StartsWith("/architect")){
@@ -57,7 +67,7 @@ namespace _min
                 Common.Environment.GlobalState = GlobalState.Error;
 
             
-            // session expiry means logout, even if the provider would keep it
+            // session expiry means logout, even if the provider would keep the user logged in
             if ((Session.IsNewSession || user == null) 
                 && CE.GlobalState != GlobalState.Account && CE.GlobalState != GlobalState.Error)
             {
@@ -68,6 +78,7 @@ namespace _min
 
             IBaseDriver systemBaseDriver = null;
 
+            // initialize the system driver based on the server type read from the configuration
             switch (DbServer)
             {
                 case DbServer.MySql:
@@ -84,6 +95,7 @@ namespace _min
             
             // global service
 
+            // is there a need for a reload of the project architecture?
             bool NewProjectLoad = false;
 
             // get current project and init drivers and architect
@@ -188,6 +200,8 @@ namespace _min
                     if (globalRights % 1000 >= 100) architectOf = allNames;
 
 
+                    // decide on the upper menu content
+
                     MenuItem administerItem = new MenuItem("Administer", "admin");
                     foreach (string site in adminOf)
                     {
@@ -225,7 +239,6 @@ namespace _min
                     MenuItem accountItem = new MenuItem("Account", "account");
                     accountItem.ChildItems.Add(new MenuItem("Login", null, null, "/account/login"));
                     accountItem.ChildItems.Add(new MenuItem("Register", null, null, "/account/register"));
-                    accountItem.ChildItems.Add(new MenuItem("Password recovery", null, null, "/account/password-recovery"));
                     
                     NavigationMenu.Items.Add(accountItem);
                 }
@@ -337,7 +350,7 @@ namespace _min
         }
 
         /// <summary>
-        /// lisst the ids of users online
+        /// lists the ids of users online
         /// </summary>
         /// <returns></returns>
         private List<object> GetUsersOnline()

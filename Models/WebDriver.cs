@@ -30,7 +30,7 @@ namespace _min.Models
             this.driver = driver;
         }
 
-
+        
         /// <summary>
         /// Fills panel with data based on the columns included and possibly the Primary Key
         /// </summary>

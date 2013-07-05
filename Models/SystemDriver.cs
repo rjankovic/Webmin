@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using System.Web.Security;
 using CC = _min.Common.Constants;
 using CE = _min.Common.Environment;
+using System.Web;
 
 
 namespace _min.Models
@@ -544,18 +545,18 @@ namespace _min.Models
             return project;
         }
 
-        public CE.Project GetProject(int projectId) { 
-            DataRow row = driver.fetch("SELECT * FROM projects WHERE id_project = ", projectId);
-            return ProjectFromDataRow(row);
-            }
+        public CE.Project GetProject(int projectId) {
+            DataTable projects = GetProjects();
+            return ProjectFromDataRow(projects.Rows.Find(projectId));
+        }
 
         public CE.Project GetProject(string projectName) {
-            DataRow row = driver.fetch("SELECT * FROM projects WHERE ", dbe.Col("name"), " = ", dbe.InObj(projectName));
-            return ProjectFromDataRow(row);
+            DataTable projects = GetProjects();
+            return ProjectFromDataRow(projects.AsEnumerable().First(row => row["name"] == projectName));
         }
 
         public string[] GetProjectNameList() {
-            DataTable resTable = driver.fetchAll("SELECT name FROM projects");
+            DataTable resTable = GetProjects();
             string[] res = new string[resTable.Rows.Count];
             for (int i = 0; i < resTable.Rows.Count; i++)
                 res[i] = resTable.Rows[i]["name"] as string;
@@ -566,9 +567,21 @@ namespace _min.Models
         /// </summary>
         /// <returns></returns>
         public DataTable GetProjects() {
+            
+            DataTable res = new DataTable();
+            res.ReadXmlSchema(HttpContext.Current.Server.MapPath(CC.PROJECTS_SCHEMA_FILE_LOCAL_PATH));
+            res.ReadXml(HttpContext.Current.Server.MapPath(CC.PROJECTS_FILE_LOCAL_PATH));
+            res.PrimaryKey = new DataColumn[] { res.Columns["id_project"] };
+            return res;
+             
+            
+            // original implementation using the database
+            /*
             DataTable res = driver.fetchAll("SELECT * FROM projects");
             res.PrimaryKey = new DataColumn[] { res.Columns["id_project"] };
             return res;
+             */
+              
         }
 
         public List<CE.Project> GetProjectObjects() {
@@ -579,24 +592,51 @@ namespace _min.Models
             return projectsList;
         }
 
+        private void SaveProjectsTable(DataTable projectsTable) {
+            projectsTable.WriteXml(HttpContext.Current.Server.MapPath(CC.PROJECTS_FILE_LOCAL_PATH));
+        }
+
         public void UpdateProject(CE.Project project) {
-            if (!driver.CheckUniqueness("projects", "name", project.Name, "id_project", project.Id))
+            
+            DataTable projectsTable = GetProjects();
+            DataRow projectRow = projectsTable.Rows.Find(project.Id);
+            try
             {
-                throw new ConstraintException("The name of the project must be unique.");
+                projectRow["name"] = project.Name;
+                projectRow["connstring_web"] = project.ConnstringWeb;
+                projectRow["connstring_information_schema"] = project.ConnstringIS;
             }
-
-             Dictionary<string, object> updVals = new Dictionary<string, object>{
-                {"name", project.Name},
-                {"connstring_web", project.ConnstringWeb},
-                {"connstring_information_schema", project.ConnstringIS}
-             };
-
-            driver.query("UPDATE projects SET ", dbe.UpdVals(updVals), " WHERE id_project = ", project.Id); 
+            catch (ConstraintException ce) {
+                throw new ConstraintException("The name of the project must be unique.", ce);
+            }
+            SaveProjectsTable(projectsTable); 
         }
 
         public int InsertProject(CE.Project project) {
+            DataTable projects = GetProjects();
+            DataRow newRow = projects.NewRow();
+            newRow["name"] = project.Name;
+            newRow["connstring_web"] = project.ConnstringWeb;
+            newRow["connstring_information_schema"] = project.ConnstringIS;
+            newRow["version"] = project.Version;
+
+            try {
+                projects.Rows.Add(newRow);
+            }
+            catch(ConstraintException ce){
+                
+                throw new ConstraintException("The name of the project must be unique.", ce);
+            }
+
+            SaveProjectsTable(projects);
+            
+            return (int)newRow["id_project"];
+
+            // original version using the database
+            /*
             if (!driver.CheckUniqueness("projects", "name", project.Name)) {
                 throw new ConstraintException("The name of the project must be unique.");
+
             }
             Dictionary<string, object> insVals = new Dictionary<string, object>{
                 {"name", project.Name},
@@ -610,10 +650,15 @@ namespace _min.Models
             int id = driver.LastId();
             driver.CommitTransaction();
             return id;
+             */ 
         }
 
         public void DeleteProject(int projectId) {
-            driver.query("DELETE FROM ", dbe.Table("projects"), "WHERE `id_project` = ", projectId);
+            DataTable projects = GetProjects();
+            projects.Rows.Remove( projects.Rows.Find(projectId) );
+            SaveProjectsTable(projects);
+            driver.query("DELETE FROM ", dbe.Table("panels"), " WHERE ", dbe.Col("id_project"), " = ", projectId);
+            driver.query("DELETE FROM ", dbe.Table("access_rights"), " WHERE ", dbe.Col("id_project"), " = ", projectId);
         }
 
         public bool ProposalExists() {

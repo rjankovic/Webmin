@@ -1,0 +1,51 @@
+<?xml version="1.0" standalone="yes"?>
+<DocumentElement>
+  <Table>
+    <id_project>1</id_project>
+    <name>Nabory</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=naborycz; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=false</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>2153</version>
+  </Table>
+  <Table>
+    <id_project>2</id_project>
+    <name>KonkurznySpravodaj</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=ks; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=false</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>2153</version>
+  </Table>
+  <Table>
+    <id_project>12</id_project>
+    <name>Test1</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=deskmin_test1; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=false</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>2154</version>
+  </Table>
+  <Table>
+    <id_project>13</id_project>
+    <name>Regent</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=regentsk; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=true</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>2154</version>
+  </Table>
+  <Table>
+    <id_project>14</id_project>
+    <name>NabytekOutlet</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=nabytekoutle; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=true</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>2154</version>
+  </Table>
+  <Table>
+    <id_project>17</id_project>
+    <name>Goethe</name>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=goethepardubiceo; pooling=true; Allow Zero Datetime=true;</connstring_web>
+    <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=true; Allow Zero Datetime=true</connstring_information_schema>
+    <server_type>MySql</server_type>
+    <version>60</version>
+  </Table>
+</DocumentElement>

@@ -23,15 +23,30 @@ using _min.Interfaces;
 namespace _min.Architect
 {
     /// <summary>
-    /// edit a panel of Editable tpee
+    /// Edit a panel of Editable type
     /// </summary>
     public partial class EditEditable : System.Web.UI.Page
     {
         
+        /// <summary>
+        /// the current panel whose fields are being edited
+        /// </summary>
         MPanel actPanel;
+        /// <summary>
+        /// the foreign keys found in the table associated with this panel
+        /// </summary>
         List<FK> FKs;
+        /// <summary>
+        /// the M2N mapping that refer to the table associated
+        /// </summary>
         List<M2NMapping> mappings;
+        /// <summary>
+        /// the MinMaster object passed from the master page (project information, drivers,...)
+        /// </summary>
         MinMaster mm;
+        /// <summary>
+        /// available field factories
+        /// </summary>
         List<IColumnFieldFactory> factories;
                 
 
@@ -45,7 +60,7 @@ namespace _min.Architect
             actPanel = mm.SysDriver.Panels[panelId];
             DataColumnCollection cols = mm.Stats.ColumnTypes[actPanel.tableName];
 
-            // the field types - default and special subsets allowed for special data types - i.e. o foereign key cannot be edited via anything but
+            // the field types - default and special subsets allowed for special data types - i.e. a foereign key cannot be edited via nothing but
             // a FKFiels
             string[] fieldTypes = new string[] { FieldTypes.ShortText.ToString(), FieldTypes.Bool.ToString(), 
                 FieldTypes.Date.ToString(), FieldTypes.DateTime.ToString(), FieldTypes.Text.ToString()
@@ -64,6 +79,8 @@ namespace _min.Architect
                     break;
                 }
             }
+
+
             // a  FKField can be only required - let referential integrity take care of the rest
             string[] requiredRule = new string[] { Enum.GetName(typeof(ValidationRules), ValidationRules.Required) };
             FKs = mm.Stats.FKs[actPanel.tableName];
@@ -138,7 +155,7 @@ namespace _min.Architect
                 if (cf != null) {
                     dl.SelectedIndex = dl.Items.IndexOf(dl.Items.FindByText(cf.type.ToString()));
                 }*/
-                // else set default baed on  datatype - could build a dictionary...
+                // set default baed on  datatype - could build a dictionary...
 
 
                 //...the validation rules...
@@ -250,23 +267,7 @@ namespace _min.Architect
             backButton.PostBackUrl = backButton.GetRouteUrl("ArchitectShowRoute", new { projectName = mm.ProjectName });
 
         }
-        /*
-        protected void Page_LoadComplete(object sender, EventArgs e) {
-            int i = 1;
-            foreach (DataColumn col in mm.Stats.ColumnTypes[actPanel.tableName])
-            {       // standard fields
-                TableRow r = tbl.Rows[i++];
-                if (!((CheckBox)r.Cells[1].Controls[0]).Checked)
-                    continue;
-                // label, present, type, valid, caption
 
-                TypeDrop_IndexChanged(((DropDownList)r.Cells[2].Controls[0]), new EventArgs());
-            }
-
-        }
-        */
-
-        
 
         protected void SaveButton_Click(object sender, EventArgs e)
         {

@@ -23,6 +23,13 @@ namespace _min.Sys
         {
             mm = (MinMaster)Master;
             projectsTable = mm.SysDriver.GetProjects();
+
+            //projectsTable.Columns["name"].Unique = true;
+            //projectsTable.Columns["id_project"].AutoIncrement = true;
+            
+            //projectsTable.WriteXmlSchema(HttpContext.Current.Server.MapPath(Common.Constants.PROJECTS_SCHEMA_FILE_LOCAL_PATH));
+            //projectsTable.WriteXml(HttpContext.Current.Server.MapPath(Common.Constants.PROJECTS_FILE_LOCAL_PATH));
+
             ProjectsGrid.DataSource = projectsTable;
             ProjectsGrid.DataBind();
         }

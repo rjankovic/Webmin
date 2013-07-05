@@ -126,6 +126,9 @@ namespace _min.Common
 
         public const string TABLE_COLUMN_REAL_VALUE_PREFIX = "__";
 
+        public const string PROJECTS_FILE_LOCAL_PATH = "~/Projects.xml";
+        public const string PROJECTS_SCHEMA_FILE_LOCAL_PATH = "~/ProjectsSchema.xml";
+
 
     }
 
