@@ -15,6 +15,9 @@ using CE = _min.Common.Environment;
 
 namespace _min.Sys
 {
+    /// <summary>
+    /// The management of a particular project - set and test the connections strings, delete / add / upadate a project.
+    /// </summary>
     public partial class ProjectDetail : System.Web.UI.Page
     {
         DataTable projectsTable = new DataTable();

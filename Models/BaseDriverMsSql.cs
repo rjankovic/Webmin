@@ -101,5 +101,10 @@ namespace _min.Models
             if (!version.StartsWith("1")) throw new Exception("Incompatible SQL Server version: " + version);
         }
 
+        public override void TestDatabaseIsEmpty() {
+            if ((int)fetchSingle("SELECT COUNT(*) FROM [sysobjects] WHERE [type] = 'U'") > 0)
+                throw new Exception("The database must be empty.");
+        }
+
     }
 }

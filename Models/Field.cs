@@ -9,7 +9,6 @@ using _min.Common;
 using _min.Controls;
 using UControl = System.Web.UI.WebControls.WebControl;
 using WC = System.Web.UI.WebControls;
-using System.Web;
 using CC = _min.Common.Constants;
 using CE = _min.Common.Environment;
 
@@ -26,7 +25,7 @@ namespace _min.Models
         [IgnoreDataMember]
         public abstract System.Web.UI.WebControls.WebControl MyControl { get; }
         [IgnoreDataMember]
-        public int? FieldId { get; private set; }       // better setter once
+        public int? FieldId { get; private set; }       
         public void SetId(int id)
         {
             if (FieldId == null)
@@ -61,6 +60,10 @@ namespace _min.Models
         [IgnoreDataMember]
         public string ErrorMessage { get; protected set; }
 
+        
+        /// <summary>
+        /// This is needed when fields are addes to an already existing panel.
+        /// </summary>
         public void RefreshPanelId() {
             PanelId = Panel.panelId;
         }
@@ -105,6 +108,9 @@ namespace _min.Models
 
         public abstract object  Data {get; set;}
 }
+    /// <summary>
+    /// Currently, only M2N fields are non-column
+    /// </summary>
     [DataContract]
     public abstract class ColumnField : FieldBase, IColumnField {
 
@@ -1201,6 +1207,6 @@ namespace _min.Models
     }
     
 
-    // no factory for M2N
+    // no factory for M2N - it is no a column field and is so special it will probably never be extended by the user ...
 
 }

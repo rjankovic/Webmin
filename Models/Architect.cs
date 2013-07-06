@@ -35,7 +35,7 @@ namespace _min.Models
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns>Panel (or null)</returns>
-        public Panel proposeForTable(string tableName)
+        public Panel ProposeForTable(string tableName)
         {
             // don`t care for indexes for now
 
@@ -199,7 +199,7 @@ namespace _min.Models
             {
                 if (excludedTables.Contains(tableName)) continue;
                 //Notice(this, new ArchitectNoticeEventArgs("Exploring table \"" + tableName + "\"..."));
-                Panel editPanel = proposeForTable(tableName);
+                Panel editPanel = ProposeForTable(tableName);
                 if (editPanel != null)
                 {      // editable panel available - add summary panel
                     Panel summaryPanel = proposeSummaryPanel(tableName);
@@ -266,7 +266,6 @@ namespace _min.Models
         /// checks if edited fields exist in webDB and their types are adequate, checks constraints on FKs and mapping tables,
         /// also checks if controls` dataTables` columns exist and everything that has to be inserted in DB is a required field,
         /// whether attributes don`t colide and every panel has something to display.
-        /// As it goes through the Panel, it fires an ArchitectureError event.
         /// </summary>
         /// <param name="proposalPanel"></param>
         /// <param name="recursive">run itself on panel children</param>
@@ -288,7 +287,7 @@ namespace _min.Models
             {
                 foreach (IField field in proposalPanel.fields)
                 {
-                    if(!(field is IColumnField)) continue;
+                    if(!(field is IColumnField)) continue;  // M2Ns are OK - strict UI
                     IColumnField cf = (IColumnField)field;
                     string messageBeginning = "Column " + cf.ColumnName + " managed by field " + cf.Caption + " ";
                     if (!(cols.Contains(cf.ColumnName)))
@@ -300,7 +299,7 @@ namespace _min.Models
                     {
                         if (!(cf is FKField))     // NavTable won`t be edited in the panel
                         {
-                            if (cols[cf.ColumnName].AllowDBNull == false &&
+                            if (cols[cf.ColumnName].AllowDBNull == false &&     // things that have to be filled in must be required
                                 !cols[cf.ColumnName].AutoIncrement &&
                                 !(cf is CheckboxField)&&
                                 !cf.Required)
@@ -310,67 +309,33 @@ namespace _min.Models
                                 good = false;
                             }
 
+                            // PBPR
 
-                            /*
-                            if ((r.Contains(ValidationRules.Date) || r.Contains(ValidationRules.DateTime))
-                                // TODO do not handle these MySQL issues in here
-                                && !(cols[field.column].DataType == typeof(DateTime) || cols[field.column].DataType == typeof(MySql.Data.Types.MySqlDateTime)))
-                            {
-                                errorMsgs.Add(messageBeginning +
-                                    "is not a date / datetime, thus cannot be edited as a date");
-                                good = false;
-                            }
-                            */
-                            /*
-                            DataColumn fieldColumn = cols[field.Column];
-                            if (field.type != FieldTypes.ShortText)
-                            {
-                                if (field.type == FieldTypes.Text && fieldColumn.DataType != typeof(string))
-                                {
-                                    errorMsgs.Add(messageBeginning + "- only text columns can be edited in a text editor");
-                                    good = false;
-                                }
-                            }
-                            if (field.caption == null || field.caption == "")
-                            {
-                                errorMsgs.Add(messageBeginning + " must have a caption");
-                                good = false;
-                            }
-                            if ((cols[field.Column].DataType == typeof(int)
-                                || cols[field.Column].DataType == typeof(long)
-                                || cols[field.Column].DataType == typeof(short)) && !field.validationRules.Contains(ValidationRules.Ordinal))
-                            {
-                                errorMsgs.Add(messageBeginning + " is of type " + cols[field.Column].DataType.ToString() +
-                                    ", but is not restrained to ordinal values by a validation rule");
-                                good = false;
-                            }
+                            // other validation requirements will be fullfilled based on the field type - the panel editation GUI will not let the user
+                            // select a field type that is inconsistent with the column datatype
 
-                            if ((cols[field.Column].DataType == typeof(decimal)
-                                 || cols[field.Column].DataType == typeof(double)
-                                || cols[field.Column].DataType == typeof(float)) && !field.validationRules.Contains(ValidationRules.Decimal))
-                            {
-                                errorMsgs.Add(messageBeginning + " is of type " + cols[field.Column].DataType.ToString() +
-                                    ", but is not restrained to numeric values by a validation rule");
-                                good = false;
-                            }
-                            if (cols[field.Column].Unique && !field.validationRules.Contains(ValidationRules.Unique)) {
+                            if (cols[cf.ColumnName].Unique && !cf.Unique) {
                                 errorMsgs.Add(messageBeginning + " is constrained to be unique, but the corresponding field does not have "
                                     + "the \"Unique\" validation rule set.");
                                 good = false;
                             }
-                             */ 
+                             
                         }
                     }
                 }
+
+                // Columns that are not covered and should be - allowdbnull is false, they do not have any default value 
+                // and are not AutoIncrements and none of the fields refers to them.
                 var colsx = stats.ColumnTypes[proposalPanel.tableName];
                 IEnumerable<string> requiredColsMissing = from DataColumn col in stats.ColumnTypes[proposalPanel.tableName]
-                                                          where col.AllowDBNull == false && 
+                                                          where col.AllowDBNull == false && col.AutoIncrement == false &&
                                                           (col.DefaultValue == null || col.DefaultValue == DBNull.Value) &&
                                                           !proposalPanel.fields.Exists(x => x is IColumnField && ((IColumnField)x).ColumnName == col.ColumnName)
                                                           && (!customs.ContainsKey(col) || (bool)customs[col]["required"] == false)
                                                           select col.ColumnName;
-                // if the oclum is contained in customs, only the custom factory validation will be left so this validation does not need to be called
-                // again
+                
+                // if the colum is contained in customs, only the custom factory validation will be left 
+                //so this validation does not need to be called again
 
                 foreach (string missingCol in requiredColsMissing)
                 {

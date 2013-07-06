@@ -16,12 +16,21 @@ using CE = _min.Common.Environment;
 
 namespace _min.Architect
 {
+    /// <summary>
+    /// steps the user through the initialization of interface structure for a new project.
+    /// </summary>
     public partial class InitProposal : System.Web.UI.Page
     {
-        DataTable dbLog;
         MinMaster mm;
         List<M2NMapping> mappings;
 
+        /// <summary>
+        /// Takes care of step one - the discovery of tables missing primary kery 
+        /// (and possibly more critical errors in future) 
+        /// because of which these tables cannot be included in the genereated administration interface.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void Page_Load(object sender, EventArgs e)
         {
             mm = (MinMaster)Master;
@@ -50,14 +59,10 @@ namespace _min.Architect
                 {
                     FirstProblemList.Items.Add("Seems OK...");
                 }
+                // fore each step, save the gained information into a separate field in Session
                 Session["PKless"] = PKless;
             }
 
-        }
-
-        protected void Page_PreRender(object sender, EventArgs e)
-        {
-            //sysDriver.ProcessLogTable(stats.logTable);
         }
 
         protected void InitProposalWizard_NextButtonClick(object sender, WizardNavigationEventArgs e)
@@ -148,6 +153,12 @@ namespace _min.Architect
 
         }
 
+       /// <summary>
+       /// passes all the data collected to the Architect object, invoking its main method - Propose, which will generate the proposal
+       /// and save it to the system database
+       /// </summary>
+       /// <param name="sender"></param>
+       /// <param name="e"></param>
         protected void InitProposalWizard_FinishButtonClick(object sender, WizardNavigationEventArgs e)
         {
             List<string> excludedTables = (List<string>)Session["excludedTables"];
@@ -158,12 +169,19 @@ namespace _min.Architect
             mm.Architect.excludedTables = excludedTables;
             mm.Stats.SetDisplayPreferences(displayColumnPreferences);
             mm.Architect.hierarchies = (List<string>)Session["goodHierarchies"];
+            // the main point
             _min.Models.Panel proposal = mm.Architect.propose();       // saved within proposing
-            //sysDriver.AddPanel(proposal);
+            
             string projectName = Page.RouteData.Values["projectName"] as string;
             Response.RedirectToRoute("ArchitectShowRoute", new { projectName = CE.project.Name });
         }
 
+        /// <summary>
+        /// the gridview is bound to the list of tables - upon binding, add a DirectEditation checkbox
+        /// and a dropbox to select the representative column for that table
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void TablesUsageGridView_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType != DataControlRowType.DataRow) return;
@@ -174,6 +192,7 @@ namespace _min.Architect
             ddl.DataBind();
         }
 
+        // from a dictionary <tableName, List<mapping>> to a flat list
         List<M2NMapping> FlattenMappings(Dictionary<string, List<M2NMapping>> dict) {
             List<M2NMapping> res = new List<M2NMapping>();
             foreach (List<M2NMapping> l in dict.Values) {

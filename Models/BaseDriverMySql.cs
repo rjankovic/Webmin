@@ -133,5 +133,13 @@ namespace _min.Models
             if (!version.StartsWith("5")) throw new Exception("Incompatible MySQL version: " + version);
         }
 
+        public override void TestDatabaseIsEmpty() {
+            int existentTables = fetchAll("SHOW TABLES").Rows.Count;
+            if (existentTables > 0)
+            {
+                throw new Exception("The database must be empty.");
+            }
+        }
+
     }
 }

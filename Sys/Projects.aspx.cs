@@ -13,6 +13,7 @@ using System.Web.Security;
 
 namespace _min.Sys
 {
+    // a mere summary of the projects created
     public partial class Projects : System.Web.UI.Page
     {
         DataTable projectsTable = new DataTable();
@@ -24,12 +25,7 @@ namespace _min.Sys
             mm = (MinMaster)Master;
             projectsTable = mm.SysDriver.GetProjects();
 
-            //projectsTable.Columns["name"].Unique = true;
-            //projectsTable.Columns["id_project"].AutoIncrement = true;
             
-            //projectsTable.WriteXmlSchema(HttpContext.Current.Server.MapPath(Common.Constants.PROJECTS_SCHEMA_FILE_LOCAL_PATH));
-            //projectsTable.WriteXml(HttpContext.Current.Server.MapPath(Common.Constants.PROJECTS_FILE_LOCAL_PATH));
-
             ProjectsGrid.DataSource = projectsTable;
             ProjectsGrid.DataBind();
         }

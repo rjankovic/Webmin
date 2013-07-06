@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Data;
-using System.Configuration;
-using System.Text.RegularExpressions;
 
 using _min.Common;
 using _min.Interfaces;
 using _min.Models;
-using _min.Navigation;
-using _min.Controls;
-using CC = _min.Common.Constants;
-using CE = _min.Common.Environment;
 using MPanel = _min.Models.Panel;
 
 namespace _min.Architect
@@ -35,26 +27,21 @@ namespace _min.Architect
             ValidationResult.Items.Clear();
             mm = (MinMaster)Master;
 
-            
             string projectName = Page.RouteData.Values["projectName"] as string;
             int panelId = Int32.Parse(Page.RouteData.Values["panelId"] as string);
 
             actPanel = mm.SysDriver.Panels[panelId];
-            
             DataColumnCollection cols = mm.Stats.ColumnTypes[actPanel.tableName];
-
             PanelName.Text = actPanel.panelName;
-            
             _min.Models.Control control = actPanel.controls.Where(x => x is NavTableControl || x is TreeControl).First();
-
             FKs = mm.Stats.FKs[actPanel.tableName];
-
             List<string> colNames = (from DataColumn col in cols select col.ColumnName).ToList<string>();
             
             // a M2NControl to select the columns of the table displayed in the GridView - for a tree we take only the first item
             DisplayCols.SetOptions(colNames);
             DisplayCols.SetIncludedOptions(control.displayColumns);
             
+            // what actions can be triggered from the navigation control
             List<string> possibleAcitons = new List<string>(new string[] { UserAction.Insert.ToString(), UserAction.View.ToString(), 
                                            UserAction.Delete.ToString() });
             List<UserAction> originalActions = new List<UserAction>();
@@ -63,11 +50,15 @@ namespace _min.Architect
                     originalActions.Add(ua);
             }
             else{
-                foreach(UserAction ua in ((TreeControl)control).actions)
+                foreach (UserAction ua in ((TreeControl)control).actions)
+                {
                     originalActions.Add(ua);
+                }
             }
             
 
+            // if the panel contains a NavTable or TreeControl, it is the only control of a complex type and other controls therefore must be
+            // simple buttons.
             foreach(_min.Models.Control simpleControl in actPanel.controls){
                 if(simpleControl == control) continue;
                 originalActions.Add(simpleControl.action);
@@ -96,8 +87,6 @@ namespace _min.Architect
 
         protected void SaveButton_Click(object sender, EventArgs e)
         {
-
-
             string panelName = PanelName.Text;
             List<string> displayCols = DisplayCols.RetrieveStringData();
             List<UserAction> actions = new List<UserAction>();
@@ -133,6 +122,7 @@ namespace _min.Architect
                     actions.Remove(UserAction.Insert);
                 }
 
+                // it is a NavTable
                 if (NavControlType.SelectedValue.EndsWith("Table"))
                 {
                     List<FK> neededFKs = (from FK fk in FKs where displayCols.Contains(fk.myColumn) select fk).ToList<FK>();

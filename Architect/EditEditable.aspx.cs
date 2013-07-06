@@ -23,7 +23,7 @@ using _min.Interfaces;
 namespace _min.Architect
 {
     /// <summary>
-    /// Edit a panel of Editable type
+    /// Edit a panel of Editable type (i.e. not Menu, not nested panels` holder...)
     /// </summary>
     public partial class EditEditable : System.Web.UI.Page
     {
@@ -48,7 +48,7 @@ namespace _min.Architect
         /// available field factories
         /// </summary>
         List<IColumnFieldFactory> factories;
-                
+        
 
         protected void Page_Init(object sender, EventArgs e)
         {
@@ -70,16 +70,7 @@ namespace _min.Architect
             string[] mappingType = new string[] { FieldTypes.M2NMapping.ToString() };
             string[] validationRules = Enum.GetNames(typeof(ValidationRules));
             
-            // replace required with empty field and push it to the top
-            for (int i = 0; i < validationRules.Length; i++) {
-                if (validationRules[i] == ValidationRules.Required.ToString())
-                {
-                    validationRules[i] = validationRules[0];
-                    validationRules[i] = "";
-                    break;
-                }
-            }
-
+            //possible bugpoing (see repo)
 
             // a  FKField can be only required - let referential integrity take care of the rest
             string[] requiredRule = new string[] { Enum.GetName(typeof(ValidationRules), ValidationRules.Required) };
@@ -151,12 +142,8 @@ namespace _min.Architect
                     
                 }
                 r.Cells.Add(FKDisplayCell);
-                /*
-                if (cf != null) {
-                    dl.SelectedIndex = dl.Items.IndexOf(dl.Items.FindByText(cf.type.ToString()));
-                }*/
-                // set default baed on  datatype - could build a dictionary...
-
+                
+                //PBPR
 
                 //...the validation rules...
                 TableCell validCell = new TableCell();
@@ -196,8 +183,6 @@ namespace _min.Architect
                 // index 6
                 
                 tbl.Rows.Add(r);
-                
-                
             }
 
             
@@ -287,10 +272,7 @@ namespace _min.Architect
                IColumnFieldFactory factory = factories[Int32.Parse(((DropDownList)r.Cells[2].Controls[0]).SelectedValue)];
                
 
-                // cell 3 is for FK display column dropList
-
-                //List<ValidationRules> rules = new List<ValidationRules>();
-                //if(reqChb.Checked) rules.Add(ValidationRules.Required);
+                // cell 3 is there for FK display column dropList
 
                bool required = false;
                bool unique = false;
@@ -315,22 +297,9 @@ namespace _min.Architect
                 }
 
                 IField newField;
-                /*
-                if (type == FieldTypes.FK)
-                {
-                    FK fk = FKs.Find(x => x.myColumn == col.ColumnName);
-                    fk.displayColumn = ((DropDownList)(r.Cells[3].Controls[0])).SelectedValue;
-                    newField = new FKField(col.ColumnName, caption, FKs.Find(x => x.myColumn == col.ColumnName));
-                    newField.Panel = actPanel;
-                }*/
-                /*else if (type == FieldTypes.Enum)
-                {
-                    newField = new EnumField(0, col.ColumnName, actPanel.panelId,
-                        (List<string>)mm.Stats.ColumnTypes[actPanel.tableName][col.ColumnName].ExtendedProperties[CC.ENUM_COLUMN_VALUES],
-                        caption);
-                }*/
-                //else
-                //{
+
+                //PBPR
+
                 // react to the changes to the displaycolumn for the FK
                 if (col.ExtendedProperties.Contains("FK")) {
                     FK colFK = (FK)(col.ExtendedProperties["FK"]);
@@ -341,8 +310,9 @@ namespace _min.Architect
                     newField.Caption = caption;
                     newField.Required = required;
                     if (newField is IColumnField)
+                    {
                         ((IColumnField)newField).Unique = unique;
-                //}
+                    }
                 fields.Add(newField);
             }
 
@@ -383,7 +353,7 @@ namespace _min.Architect
                         (UserAction)Enum.Parse(typeof(UserAction), actionString));
                     c.targetPanel = actPanel.controls[0].targetPanel;
                     
-                    c.targetPanelId = actPanel.controls[0].targetPanelId;   // bad...really
+                    c.targetPanelId = actPanel.controls[0].targetPanelId;   //  a miserable way to find out the target panel...really
                     
                     controls.Add(c);
             }

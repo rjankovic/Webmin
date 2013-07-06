@@ -277,5 +277,7 @@ namespace _min.Models
 
         public abstract void TestConnection();
 
+        public abstract void TestDatabaseIsEmpty();
+
     }
 }

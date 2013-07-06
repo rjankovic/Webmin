@@ -121,7 +121,11 @@ namespace _min.Models
             p.parent = this;
         }
 
-
+        /// <summary>
+        /// Set the initial id for the panel after it has been saved to the database 
+        /// and a new AutoIncrement - the panel`s ID - has been generated.
+        /// </summary>
+        /// <param name="id"></param>
         public void SetCreationId(int id)
         {
             if (panelId == 0) panelId = id;
@@ -138,6 +142,10 @@ namespace _min.Models
                 throw new Exception("Panel parent already initialized");
         }
 
+        /// <summary>
+        /// Create a both-side binding between this panel and the fields given
+        /// </summary>
+        /// <param name="fields"></param>
         public void AddFields(List<IField> fields)
         {
             foreach (IField newField in fields)
@@ -149,6 +157,10 @@ namespace _min.Models
             }
         }
 
+        /// <summary>
+        /// Add controls to the panel`s Controls collection and the control`s panel property to this panel (both-side binding).
+        /// </summary>
+        /// <param name="controls"></param>
         public void AddControls(List<Control> controls)
         {
             foreach (Control newControl in controls)
@@ -175,9 +187,18 @@ namespace _min.Models
             this.controls = new List<Control>();
         }
 
+
+        /// <summary>
+        /// collects data from its fields and fillst them into a DataRow so that it is prepared for being passed to the database driver for UPDATE / INSERT commands
+        /// </summary>
         public void RetrieveDataFromFields()
         {
+            // form two tables to match the structure of data included in the fields
+           
+            // one suitable for update commands
             DataTable tbl = new DataTable();
+
+            // one for inserts (does not contain AI ...)
             DataTable insTbl = new DataTable();
             if (PK != null)
             {
@@ -190,25 +211,32 @@ namespace _min.Models
                 IColumnField cf = f as IColumnField;
                 if (cf.Data != null && cf.Data != DBNull.Value)
                 {
+                    // do not create  duplicities - if the column is a part of the primary key, do not add it to the update table again. 
+                    // Moreover, the PK of a record should not change
                     if (PK == null || !PK.Table.Columns.Contains(cf.ColumnName))
                         tbl.Columns.Add(new DataColumn(cf.ColumnName, cf.Data.GetType()));
                     insTbl.Columns.Add(new DataColumn(cf.ColumnName, cf.Data.GetType()));
                 }
                 else
                 {
+                    // columns without value vill be passed as ints - it will not matter in the end as the command will be concatenated from string parts
                     if (PK == null || !PK.Table.Columns.Contains(cf.ColumnName))
                         tbl.Columns.Add(new DataColumn(cf.ColumnName, typeof(int)));
                     insTbl.Columns.Add(new DataColumn(cf.ColumnName, typeof(int)));
                 }
             }
 
+            // create DataRows from these new tables
             RetrievedManagedData = tbl.NewRow();
             RetrievedInsertData = insTbl.NewRow();
             if (PK != null)
             {
+                // add the PK finally
                 foreach (DataColumn col in PK.Table.Columns)
                     RetrievedManagedData[col.ColumnName] = PK[col.ColumnName];
             }
+
+            // fill the DataRows with data
             foreach (IField f in fields)
             {
                 if (!(f is IColumnField)) continue;

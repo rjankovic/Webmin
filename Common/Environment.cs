@@ -17,7 +17,7 @@ namespace _min.Common
     public enum FieldTypes { FK, M2NMapping, Date, DateTime, Time, Holder, ShortText, Text, Bool, Enum }
     public enum PropertyConcerns { Control, Validation, View }
     public enum ValidationRules { Required, Ordinal, Decimal, DateTime, Date, Unique }
-    public enum GlobalState { Architect, Administer, UsersManagement, ProjectsManagement, Account, Error, Unknown }
+    public enum GlobalState { Architect, Administer, UsersManagement, ProjectsManagement, Account, Error, FirstRun, Unknown }
     public enum LockTypes { AdminLock, ArchitectLock }
     public enum FileNameFormat { UnixTime, UploadName, Both }
     public enum TargetImageFormat { JPG, PNG }
@@ -106,8 +106,6 @@ namespace _min.Common
     public static class Constants {
         public const string SALT = "hjjh5435435jl43kj5ljlj53l4j5lk4";
 
-        public const string ADMIN_PREFIX = "Admin of ";
-        public const string ARCHITECT_PREFIX = "Architect of ";
         public const string ENUM_COLUMN_VALUES = "EnumValues";
         
         public const string CONTROL_HIERARCHY_RELATION = "Hierarchy";
@@ -115,6 +113,9 @@ namespace _min.Common
         public const string SYSDRIVER_FK_CONTROL_PANEL = "FK_control_panel";
         public const string SYSDRIVER_FK_FIELD_PANEL = "FK_field_panel";
 
+        /// <summary>
+        /// currently, all but autoincrement columns are denoted as ediatable; autoincrement shall not be edited in any case
+        /// </summary>
         public const string COLUMN_EDITABLE = "Editable";
 
         public const string SERVER_MYSQL = "MySql";     // code in projects.server_type
@@ -128,6 +129,9 @@ namespace _min.Common
 
         public const string PROJECTS_FILE_LOCAL_PATH = "~/Projects.xml";
         public const string PROJECTS_SCHEMA_FILE_LOCAL_PATH = "~/ProjectsSchema.xml";
+
+        public const string MYSQL_SCHEMA_FILE_PATH = "~/Dumps/MySQLSchema.sql";
+        public const string MSSQL_SCHEMA_FILE_PATH = "~/Dumps/MSSQLSchema.sql";
 
 
     }

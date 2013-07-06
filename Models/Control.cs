@@ -25,7 +25,7 @@ namespace _min.Models
     public class Control
     {
         [IgnoreDataMember]
-        public int? controlId { get; set; }  // better setter once...
+        public int? controlId { get; set; }
         [DataMember]
         public int? panelId { get; set; }
         [IgnoreDataMember]
@@ -250,9 +250,7 @@ namespace _min.Models
 
             grid.AllowSorting = true;
             
-            //grid.EnableSortingAndPagingCallbacks = true;
-            //grid.PageSize = 15;
-            //grid.PageIndex = 0;
+            //PBPR
 
             container.Controls.Add(grid);
 
@@ -266,14 +264,9 @@ namespace _min.Models
 
             grid.DataSource = data.DefaultView;
             grid.DataBind();
-            /*
-            foreach(WC.DataControlField f in grid.Columns){
-                if (f is WC.BoundField) {
-                    WC.BoundField bf = (WC.BoundField)f;
-                    if (!displayColumns.Contains(bf.DataField))
-                        f.Visible = false;
-                }
-            }*/
+            
+            //PBPR
+
             grid.RowCommand += handler;
             grid.ID = "Control" + controlId;
         }

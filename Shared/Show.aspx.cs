@@ -7,7 +7,6 @@ using System.Web.UI.WebControls;
 using System.Data;
 using _min.Common;
 using _min.Models;
-using System.Text;
 
 using _min.Interfaces;
 using _min.Navigation;
@@ -18,28 +17,23 @@ using WC = System.Web.UI.WebControls;
 
 namespace _min.Shared
 {
+    /// <summary>
+    /// Shared by the Architect and Aministraton part, this class displays those user interface for panels in their natural form 
+    /// (for all cases expect those covered by sites in the Architect folder) and is the site the standard administrative-access-level user
+    /// works with most of the time. It lets the Controls and Fields of the panel create their Webcontrol representations, fills them into the site
+    /// and handles all the events these Webcontrols will rise. It is also initializes the Navigator object.
+    /// </summary>
     public partial class Show : System.Web.UI.Page
     {
 
-        //ISystemDriver sysDriver;
-        //IStats stats;
-        //_min.Models.Architect architect;
         DataTable dbLog;
-        //_min.Models.Panel basePanel;
         _min.Models.Panel activePanel = null;
         Navigator navigator;
-        //IWebDriver webDriver;
         ValidationSummary validationSummary;
         bool noSessionForActPanel = false;
         MinMaster mm;
         
         
-        /// <summary>
-        /// Initializes basic environment - Project, SystemDriver (contains architecture - all the panels linked in a tree), architect, stats, webDriver;
-        /// sets the panel PK (if present), creates basic dropdown menu and lets the WebControls of the wohole rest of the page be created
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void Page_Init(object sender, EventArgs e)
         {
             mm = (MinMaster)Master;
@@ -49,11 +43,9 @@ namespace _min.Shared
 
 
             // whether in a specific panel or not, we need a menu
-            /**/
             MenuEventHandler menuHandler = navigator.MenuHandle;
             ((TreeControl)mm.SysDriver.MainPanel.controls[0]).ToUControl(MainPanel, navigator.MenuHandler);
-            /**/
-
+            
             // get the active panel, if exists
             if (Page.RouteData.Values.ContainsKey("panelId") && Page.RouteData.Values["panelId"].ToString() == "0")
                 Page.RouteData.Values.Remove("panelId");
@@ -139,7 +131,10 @@ namespace _min.Shared
             panel.PK = row;
         }
 
-
+        /// <summary>
+        /// creates the controls needed for architecture - edit panel(s) structure, manage panels globally and so on and fills it into provided container
+        /// </summary>
+        /// <param name="container"></param>
         void CreatePanelHeading(WC.WebControl container) {
             WC.Panel heading = new WC.Panel();
 
@@ -520,7 +515,7 @@ namespace _min.Shared
 
         public override void VerifyRenderingInServerForm(System.Web.UI.Control control)
         {
-            // for the M2N
+            // ommit this verification for the sake of M2N - jquery changing HTML content is needed for a reasonable performance
         }
     }
 }

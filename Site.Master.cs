@@ -38,13 +38,9 @@ namespace _min
         {
             DbServer = (DbServer)Enum.Parse(typeof(DbServer), System.Configuration.ConfigurationManager.AppSettings["ServerType"] as string);
 
-            user = Membership.GetUser();
+            bool isFirstRun = System.Configuration.ConfigurationManager.AppSettings["FirstRun"] as string == "True";
 
-            // set the warning only for logged in users
-                System.Configuration.ConfigurationManager.AppSettings["SessionWarning"] = 
-                    (user is MembershipUser) ? (Session.Timeout - 5).ToString() :"-1";
-
-
+            
             // detect the site type based on the beginning of the URL
             string lp = Request.Url.LocalPath;
 
@@ -63,10 +59,29 @@ namespace _min
             else if(lp.StartsWith("/account")){
                 Common.Environment.GlobalState = GlobalState.Account;
             }
+            else if(lp.StartsWith("/FirstRun")){
+                Common.Environment.GlobalState = GlobalState.FirstRun;
+            }
             else 
                 Common.Environment.GlobalState = GlobalState.Error;
 
             
+            if(isFirstRun && Common.Environment.GlobalState != GlobalState.FirstRun)
+            {
+                Response.Redirect("~/FirstRun/FirstRun.aspx");
+            }
+            if(!isFirstRun && Common.Environment.GlobalState == GlobalState.FirstRun)
+            {
+                Response.RedirectToRoute("DefaultRoute");
+            }
+
+            // set the warning only for logged in users
+            System.Configuration.ConfigurationManager.AppSettings["SessionWarning"] =
+                (user is MembershipUser) ? (Session.Timeout - 5).ToString() : "-1";
+
+            if (isFirstRun)
+                return;
+
             // session expiry means logout, even if the provider would keep the user logged in
             if ((Session.IsNewSession || user == null) 
                 && CE.GlobalState != GlobalState.Account && CE.GlobalState != GlobalState.Error)
@@ -74,6 +89,8 @@ namespace _min
                 FormsAuthentication.SignOut();
                 Response.RedirectToRoute("LockoutRoute", new { message = 7 });
             }
+
+            user = Membership.GetUser();
 
 
             IBaseDriver systemBaseDriver = null;

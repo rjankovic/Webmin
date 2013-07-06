@@ -29,31 +29,22 @@ namespace _min.Architect
 
         protected void Page_Init(object sender, EventArgs e)
         {
-
-            
             mm = (MinMaster)Master;
-
             if (!Page.IsPostBack)
             {
                 tbc.SetInitialState(((TreeControl)mm.SysDriver.MainPanel.controls[0]).storedHierarchyData, mm.SysDriver.MainPanel);
             }
-
-            
-
         }
 
         protected void OnSaveButtonClicked(object sender, EventArgs e) {
             TreeControl tc = ((TreeControl)(mm.SysDriver.MainPanel.controls[0]));
             
-            //tc.storedHierarchyData.ChildRelations.Clear();
-            // so that they dont`t remain constrained by their original dataset and can be saved to the db and eliminated arbitrarily
-            
+            //PBPR
+
             mm.SysDriver.BeginTransaction();
             ((TreeControl)(mm.SysDriver.MainPanel.controls[0])).storedHierarchyData = tbc.Hierarchy;
             mm.SysDriver.UpdatePanel(mm.SysDriver.MainPanel, false);
             mm.SysDriver.CommitTransaction();
-            //tc.storedHierarchyData.ChildRelations.Add("Hierarchy",
-            //    tc.storedHierarchyData.Columns["Id"], tc.storedHierarchyData.Columns["ParentId"], false);
             mm.SysDriver.IncreaseVersionNumber();
             Response.RedirectToRoute("ArchitectShowRoute", new { projectName = Page.RouteData.Values["projectName"] });
         }

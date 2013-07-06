@@ -19,7 +19,7 @@
   <Table>
     <id_project>12</id_project>
     <name>Test1</name>
-    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=deskmin_test1; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
+    <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=webmin_testdb1; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
     <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=false</connstring_information_schema>
     <server_type>MySql</server_type>
     <version>2154</version>

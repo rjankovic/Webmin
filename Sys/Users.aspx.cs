@@ -15,6 +15,9 @@ using CE = _min.Common.Environment;
 
 namespace _min.Sys
 {
+    /// <summary>
+    /// GUI for access rights management
+    /// </summary>
     public partial class WebForm1 : System.Web.UI.Page
     {
         MinMaster mm;

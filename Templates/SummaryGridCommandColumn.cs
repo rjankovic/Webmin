@@ -9,6 +9,10 @@ using _min.Models;
 
 namespace _min.Templates
 {
+    /// <summary>
+    /// a template used by NavTableControls or, more precisely, by their GridView webcontrols 
+    /// representations in the first column containg LinkButtons triggering the given command (Delete) or redirecting to another panel
+    /// </summary>
     public class SummaryGridCommandColumn : ITemplate
     {
         List<UserAction> options;
@@ -25,6 +29,10 @@ namespace _min.Templates
                 this.options = options;
         }
 
+        /// <summary>
+        /// Create the LinkButtons in the given container
+        /// </summary>
+        /// <param name="container"></param>
         public void InstantiateIn(System.Web.UI.Control container)
         {
             switch (itemType)

@@ -29,6 +29,7 @@ namespace _min.Interfaces
         int LastId();
         int NextAIForTable(string tableName);
         void TestConnection();
+        void TestDatabaseIsEmpty();
         bool CheckUniqueness(string tableName, string columnName, object newValue, DataRow updatedItemPK = null);
         bool CheckUniqueness(string tableName, string columnName, object newValue, string idColumnName, int id);
     }
@@ -239,6 +240,7 @@ namespace _min.Interfaces
         void UpdateProduct(IColumnField field);
     }
 
+    // maybe in the future
     /*
     public interface IDependentTableField : IField{
         string TableName {get;}

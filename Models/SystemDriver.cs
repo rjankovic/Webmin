@@ -552,7 +552,7 @@ namespace _min.Models
 
         public CE.Project GetProject(string projectName) {
             DataTable projects = GetProjects();
-            return ProjectFromDataRow(projects.AsEnumerable().First(row => row["name"] == projectName));
+            return ProjectFromDataRow(projects.AsEnumerable().First(row => row["name"] as string == projectName));
         }
 
         public string[] GetProjectNameList() {

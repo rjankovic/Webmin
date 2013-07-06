@@ -39,6 +39,7 @@ namespace _min.Architect
 
                 List<string> tables = mm.Stats.Tables;
 
+                // the summary of acessibility/dependency/... is generated at the begining, afterwards it is restroed from the Session
                 summary = new DataTable();
                 summary.Columns.Add("TableName", typeof(string));
                 summary.Columns.Add("Independent", typeof(bool));
@@ -51,6 +52,8 @@ namespace _min.Architect
                     DataRow r = summary.NewRow();
                     r["TableName"] = tableName;     // get it only once - table is stored in Session and updated
 
+                    // this will take a bit longer as the primary key needs to be determined based on the information schema
+                    // A table for which the primary key is at least partly also a foreign key is dependant.
                     r["Independent"] = !(mm.Stats.PKs[tableName].Any(pkCol => mm.Stats.FKs[tableName].Any(fk => fk.myColumn == pkCol)));
 
                     List<MPanel> tablePanels = (from MPanel p in mm.SysDriver.Panels.Values where p.tableName == tableName select p).ToList<MPanel>();
@@ -83,21 +86,38 @@ namespace _min.Architect
 
         }
 
+        /// <summary>
+        /// Called after a modification of panels that results in a different summary, this method changes the options for each table as follows:
+        /// 1. disable "Add" for tables that either have panels (have already been added) or are dependent
+        /// 2. disabler "Remove" for tables that either have reachable panels or have no panels at all - have been removed
+        /// </summary>
         private void ResetActionClickablility() {
             for (int i = 0; i < summary.Rows.Count; i++)
-            {        // disable "add" & "remove" where impossible
-                if ((bool)summary.Rows[i]["Reachable"] || !(bool)summary.Rows[i]["HasPanels"])
-                    ((LinkButton)(TablesGrid.Rows[i].Cells[1].Controls[0])).Enabled = false;
+            {
+                // this is not really needed, as the control is recreated, but kept for clarity and to be sure
+                ((LinkButton)(TablesGrid.Rows[i].Cells[0].Controls[0])).Enabled = true;
+                ((LinkButton)(TablesGrid.Rows[i].Cells[1].Controls[0])).Enabled = true;
+
+                //1
                 if ((bool)summary.Rows[i]["HasPanels"] || !(bool)summary.Rows[i]["Independent"])
                     ((LinkButton)(TablesGrid.Rows[i].Cells[0].Controls[0])).Enabled = false;
+                //2
+                if ((bool)summary.Rows[i]["Reachable"] || !(bool)summary.Rows[i]["HasPanels"])
+                    ((LinkButton)(TablesGrid.Rows[i].Cells[1].Controls[0])).Enabled = false;
+                
             }
         }
 
         
-
+        /// <summary>
+        /// When one of the action buttons beside a table is clicked, the "Confirm" button is enabled,
+        /// the color of the containing row is changed to green (add) / red (remove) and in the case of "Add",
+        /// M2N mappings that map this table to some other are found via the StatsDriver and displayed below as ChceckBoxes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void TablesGrid_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //TablesGrid.SelectedRowStyle.BackColor = System.Drawing.Color.White;
             foreach (GridViewRow row in TablesGrid.Rows)
                 row.BackColor = System.Drawing.Color.White;
             SaveButton.Enabled = true;
@@ -125,14 +145,14 @@ namespace _min.Architect
             }
         }
 
+
         protected void SaveButton_Click(object sender, EventArgs e)
         {
             mm.SysDriver.FullProjectLoad();
             int index = TablesGrid.SelectedIndex;
             string tableName = summary.Rows[index]["TableName"] as string;
             
-    
-            if ((bool)summary.Rows[index]["HasPanels"])
+            if ((bool)summary.Rows[index]["HasPanels"])     // then remove is the only option that could have been voted for
             {
                 IEnumerable<MPanel> toRemove = from MPanel p in mm.SysDriver.Panels.Values where p.tableName == tableName select p;
                 foreach (MPanel p in toRemove)
@@ -140,10 +160,10 @@ namespace _min.Architect
                 summary.Rows[index]["HasPanels"] = false;
             }
             else
-            {   // add new panels
+            {   // otherwise add new editation a navigation panel for this table
                 mm.Architect.mappings = mm.Stats.Mappings[tableName];
                 mm.Architect.hierarchies = new List<string>();  // to speed it up, hierarchy nvigation can be set in panel customization
-                MPanel editPanel = mm.Architect.proposeForTable(tableName);
+                MPanel editPanel = mm.Architect.ProposeForTable(tableName);
                 MPanel summaryPanel = mm.Architect.proposeSummaryPanel(tableName);
 
 
@@ -185,8 +205,6 @@ namespace _min.Architect
 
             Session["summary"] = summary;
         }
-
-
 
     }
 

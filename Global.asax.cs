@@ -58,8 +58,10 @@ namespace _min
             RouteTable.Routes.MapPageRoute("AdministerBrowsePanelPagingRoute", "admin/{projectName}/{panelId}/{page}", "~/Shared/Show.aspx");
             RouteTable.Routes.MapPageRoute("AdministerBrowsePanelRoute", "admin/{projectName}/{panelId}/{action}", "~/Shared/Show.aspx");
 
-
             RouteTable.Routes.MapPageRoute("LockoutRoute", "lockout/{message}", "~/Error/Lockout.aspx");
+
+            //RouteTable.Routes.MapPageRoute("FirstRunRoute", "firstrun", "~/FirstRun/FirstRun.aspx");
+
 
         }
 
