@@ -536,8 +536,7 @@ namespace _min.Models
             CE.Project project = new CE.Project(
                 (Int32)row["id_project"],
                 (string)row["name"],
-                //(string)row["server_type"],
-                "OneDay",
+                (DbServer)Enum.Parse(typeof(DbServer), (string)row["server_type"]),
                 (string)row["connstring_web"],
                 (string)row["connstring_information_schema"],
                 (Int32)(row["version"])
@@ -571,17 +570,7 @@ namespace _min.Models
             DataTable res = new DataTable();
             res.ReadXmlSchema(HttpContext.Current.Server.MapPath(CC.PROJECTS_SCHEMA_FILE_LOCAL_PATH));
             res.ReadXml(HttpContext.Current.Server.MapPath(CC.PROJECTS_FILE_LOCAL_PATH));
-            res.PrimaryKey = new DataColumn[] { res.Columns["id_project"] };
             return res;
-             
-            
-            // original implementation using the database
-            /*
-            DataTable res = driver.fetchAll("SELECT * FROM projects");
-            res.PrimaryKey = new DataColumn[] { res.Columns["id_project"] };
-            return res;
-             */
-              
         }
 
         public List<CE.Project> GetProjectObjects() {
@@ -602,6 +591,7 @@ namespace _min.Models
             DataRow projectRow = projectsTable.Rows.Find(project.Id);
             try
             {
+                projectRow["server_type"] = project.ServerType;
                 projectRow["name"] = project.Name;
                 projectRow["connstring_web"] = project.ConnstringWeb;
                 projectRow["connstring_information_schema"] = project.ConnstringIS;
@@ -615,6 +605,7 @@ namespace _min.Models
         public int InsertProject(CE.Project project) {
             DataTable projects = GetProjects();
             DataRow newRow = projects.NewRow();
+            newRow["server_tyep"] = project.ServerType.ToString();
             newRow["name"] = project.Name;
             newRow["connstring_web"] = project.ConnstringWeb;
             newRow["connstring_information_schema"] = project.ConnstringIS;
@@ -631,26 +622,6 @@ namespace _min.Models
             SaveProjectsTable(projects);
             
             return (int)newRow["id_project"];
-
-            // original version using the database
-            /*
-            if (!driver.CheckUniqueness("projects", "name", project.Name)) {
-                throw new ConstraintException("The name of the project must be unique.");
-
-            }
-            Dictionary<string, object> insVals = new Dictionary<string, object>{
-                {"name", project.Name},
-                {"connstring_web", project.ConnstringWeb},
-                {"connstring_information_schema", project.ConnstringIS},
-                {"version", project.Version}
-            };
-
-            driver.BeginTransaction();
-            driver.query("INSERT INTO projects ", dbe.InsVals(insVals));
-            int id = driver.LastId();
-            driver.CommitTransaction();
-            return id;
-             */ 
         }
 
         public void DeleteProject(int projectId) {

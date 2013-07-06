@@ -36,7 +36,7 @@ namespace _min.Sys
                 if (globalAccess >= 1000)
                 {
                     projects.Reverse();
-                    projects.Add(new CE.Project(0, "All Projects", null, null, null, 0));
+                    projects.Add(new CE.Project(0, "All Projects", DbServer.MsSql, null, null, 0));
                     projects.Reverse();
                 }
                 else

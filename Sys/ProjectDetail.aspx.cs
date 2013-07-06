@@ -15,6 +15,7 @@ using CE = _min.Common.Environment;
 
 namespace _min.Sys
 {
+
     /// <summary>
     /// The management of a particular project - set and test the connections strings, delete / add / upadate a project.
     /// </summary>
@@ -24,7 +25,6 @@ namespace _min.Sys
         CE.Project project = null;
         MinMaster mm;
         
-
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -118,7 +118,7 @@ namespace _min.Sys
             string csis = e.Values["ConnstringIS"] as string;
             string cswb = e.Values["ConnstringWeb"] as string;
 
-            CE.Project newProject = new CE.Project(0, name, mm.DbServer.ToString(), cswb, csis, 0);
+            CE.Project newProject = new CE.Project(0, name, mm.DbServer, cswb, csis, 0);
             
             BasicValidation(newProject);
             if (InfoList.Items.Count > 0)
@@ -145,7 +145,7 @@ namespace _min.Sys
             string name = e.NewValues["Name"] as string;
             string csis = e.NewValues["ConnstringIS"] as string;
             string cswb = e.NewValues["ConnstringWeb"] as string;
-            CE.Project updatedProject = new CE.Project(project.Id, name, "MSSQL", cswb, csis, project.Version + 1);
+            CE.Project updatedProject = new CE.Project(project.Id, name, DbServer.MsSql, cswb, csis, project.Version + 1);
             
             BasicValidation(updatedProject);
             if (InfoList.Items.Count > 0)
@@ -174,7 +174,14 @@ namespace _min.Sys
             Response.RedirectToRoute("ProjectsRoute");
         }
 
-
+        protected void DetailsView_DataBound(object sender, EventArgs e)
+        {
+            DropDownList ddl = DetailsView.FindControl("ddlServerType") as DropDownList;
+            ddl.DataSource = Enum.GetValues(typeof(DbServer));
+            ddl.DataBind();
+            ddl.SelectedIndex = ddl.Items.IndexOf(ddl.Items.FindByText(project.ServerType.ToString()));
+            ddl.Items.RemoveAt(0);
+        }
 
     }
 }

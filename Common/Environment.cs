@@ -66,12 +66,12 @@ namespace _min.Common
         public class Project {
             public int Id { get; private set; }
             public string Name { get; private set; }
-            public string ServerType { get; private set; }
+            public DbServer ServerType { get; private set; }
             public string ConnstringWeb { get; private set; }
             public string ConnstringIS { get; private set; }
             public int Version { get; private set; }
             public string WebDbName { get; private set; }
-            public Project(int id, string name, string serverType, string connstringWeb, string connstringIS, int version) {
+            public Project(int id, string name, DbServer serverType, string connstringWeb, string connstringIS, int version) {
                 this.Id = id;
                 this.Name = name;
                 this.ServerType = serverType;

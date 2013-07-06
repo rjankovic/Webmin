@@ -82,6 +82,8 @@ namespace _min
             if (isFirstRun)
                 return;
 
+            user = Membership.GetUser();
+
             // session expiry means logout, even if the provider would keep the user logged in
             if ((Session.IsNewSession || user == null) 
                 && CE.GlobalState != GlobalState.Account && CE.GlobalState != GlobalState.Error)
@@ -90,7 +92,7 @@ namespace _min
                 Response.RedirectToRoute("LockoutRoute", new { message = 7 });
             }
 
-            user = Membership.GetUser();
+            
 
 
             IBaseDriver systemBaseDriver = null;
@@ -134,7 +136,7 @@ namespace _min
                 IBaseDriver statsBaseDriver = null;
                 IBaseDriver webBaseDriver = null;
 
-                switch (DbServer)
+                switch (CE.project.ServerType)
                 {
                     case DbServer.MySql:
                         statsBaseDriver = new BaseDriverMySql(CE.project.ConnstringIS);

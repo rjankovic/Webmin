@@ -38,9 +38,14 @@
                         <asp:TextBox runat="server" ID="RetypePasswordTextBox" Width="200"></asp:TextBox>
                     </asp:TableCell></asp:TableRow><asp:TableRow>
                     <asp:TableCell>
+                    <asp:Label runat="server" Text="Email" />
+                    </asp:TableCell><asp:TableCell>
+                        <asp:TextBox runat="server" ID="MailTextBox" Width="200"></asp:TextBox>
+                    </asp:TableCell></asp:TableRow>
+                    <asp:TableCell>
                         <asp:Button runat="server" ID="SaveButton" Text="Configure Webmin" OnClick="SaveButton_Click" /></asp:TableCell>
                 </asp:TableRow>
                 <asp:TableRow>
-                    <asp:TableCell>
+                    <asp:TableCell ColumnSpan="2">
                         <asp:BulletedList runat="server" ID="Errors" />
                     </asp:TableCell></asp:TableRow></asp:Table></asp:Panel></asp:Content>

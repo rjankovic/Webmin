@@ -15,14 +15,10 @@ using System.Reflection;
 
 namespace _min.FirstRun
 {
-
-    
-    public class FirstRunData
-    {
-
-        public _min.Common.DbServer ServerType { get; set; }
-    }
-
+    /// <summary>
+    /// Prompts the user for database credentials, tests database connection, creates the shema required by the Webmin system, adds an initial user with exclusive access rights
+    /// and sends the user to the frontpage of a newly established instance of Webmin.
+    /// </summary>
     public partial class FirstRun : System.Web.UI.Page
     {
 
@@ -43,6 +39,7 @@ namespace _min.FirstRun
                 return;
             }
 
+            // initial testing of the database connection before we attempt to create the main schema
             IBaseDriver drv = null;
             switch (serverTypeParsed)
             {
@@ -54,12 +51,10 @@ namespace _min.FirstRun
                     break;
             }
 
-            
-
             try
             {
                 drv.TestConnection();
-                //drv.TestDatabaseIsEmpty();
+                drv.TestDatabaseIsEmpty();
             }
             catch (Exception ex)
             {
@@ -85,7 +80,18 @@ namespace _min.FirstRun
                 return;
             }
 
+            try
+            {
+                System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(MailTextBox.Text);
+            }
+            catch (FormatException fe)
+            {
+                Errors.Items.Add(fe.Message);
+                return;
+            }
 
+
+            // run the schema dump script
             switch (serverTypeParsed)
             {
                 case DbServer.MySql:
@@ -107,6 +113,7 @@ namespace _min.FirstRun
                         return;
                     }
                     break;
+
                 case DbServer.MsSql:
                     SqlConnection conn = new SqlConnection(SystemConnstringTextBox.Text);
                     try
@@ -129,21 +136,17 @@ namespace _min.FirstRun
             }
 
             var configuration = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
-            foreach (string s in configuration.Sections.Keys)
-                Errors.Items.Add(s);
-            foreach (string s in configuration.SectionGroups.Keys)
-                Errors.Items.Add(s);
             var section = (ConnectionStringsSection)configuration.GetSection("connectionStrings");
 
             System.Web.Security.MembershipProvider membership = null;
 
             string username = UsernameTextBox.Text;
             string password = PasswordTextBox.Text;
-            string mail = "jankovic.rj@gmail.com";
+            string mail = MailTextBox.Text;
 
             MembershipCreateStatus status;
                     
-
+            // rewrite the connection in the database and reload the connstring section, also set the defaultProvidder for the membership tag
             switch (serverTypeParsed)
             {
                 case DbServer.MySql:
@@ -152,46 +155,7 @@ namespace _min.FirstRun
                     configuration.Save();
                     SetDefaultMembershipProvider("MySqlMembershipProvider");
                     
-                    //ConfigurationManager.RefreshSection("appSettings");
-                    //ConfigurationManager.RefreshSection("connectionStrings");
-                    
-                    //MySql.Web.Security.MySQLMembershipProvider provider = new MySql.Web.Security.MySQLMembershipProvider();
-
-                    //System.Collections.Specialized.NameValueCollection config = new System.Collections.Specialized.NameValueCollection();
-                    
-                /*
-                    <add autogenerateschema="true" connectionStringName="MySqlServer" enablePasswordRetrieval="false" enablePasswordReset="true" 
-                    requiresQuestionAndAnswer="false" applicationName="/" requiresUniqueEmail="false" passwordFormat="Clear" maxInvalidPasswordAttempts="5" 
-                    minRequiredPasswordLength="7" minRequiredNonalphanumericCharacters="0" passwordAttemptWindow="10" passwordStrengthRegularExpression="" 
-                    name="MySqlMembershipProvider" type="MySql.Web.Security.MySQLMembershipProvider, MySql.Web, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
-                    */
-
-                    /*
-                    config.Add("actualConnectionString", SystemConnstringTextBox.Text);
-                    config.Add("connectionStringName", "MySqlServer");
-                    config.Add("enablePasswordRetrieval", "false");
-                    config.Add("autogenerateschema", "false");
-                    config.Add("enablePasswordReset", "true");
-                                        config.Add("requiresQuestionAndAnswer", "false");
-                                        config.Add("applicationName", "/");
-                                        config.Add("requiresUniqueEmail", "false");
-                                        config.Add("psswordFormat", "Clear");
-                                        config.Add("maxInvalidPasswordAttempts", "5");
-                                        config.Add("minRequiredPasswordLength", "7");
-                                        config.Add("minRequiredNonalphanumericCharacters", "0");
-                                        config.Add("passwordAttemptWindow", "10");
-                                        config.Add("passwordStrengthRegularExpression", "");
-                                                            config.Add("type", "MySql.Web.Security.MySQLMembershipProvider, MySql.Web, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d");
-                                                            //string s = ConfigurationManager.ConnectionStrings["MySqlConnectionString"].ConnectionString;
-
-
-                    provider.Initialize("MySqlMembershipProvider", config);
-                    
-                    Membership.Providers.Clear();
-                        
-                     Membership.Providers.Add(provider);
-                    */
-
+                    // remove the readonly attribute of the connection string variable of the connfiguration
                     var settingsMy = ConfigurationManager.ConnectionStrings["MsSqlServer"];
                     var fiMy = typeof( ConfigurationElement ).GetField( "_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic );
                     fiMy.SetValue(settingsMy, false);
@@ -201,25 +165,25 @@ namespace _min.FirstRun
 
                     membership.CreateUser(username, password, mail, "Dummy question", "Dummy answer", true, 1, out status);
                     break;
+
                 case DbServer.MsSql:
                     section.ConnectionStrings["MsSqlServer"].ConnectionString = SystemConnstringTextBox.Text;
                     configuration.AppSettings.Settings["ServerType"].Value = "MsSql";
                     configuration.Save();
                     SetDefaultMembershipProvider("MsSqlMembershipProvider");
-                    //ConfigurationManager.RefreshSection("appSettings");
-                    //ConfigurationManager.ConnectionStrings["MsSqlServer"].ConnectionString = SystemConnstringTextBox.Text;
-                    
+
+                    // remove the readonly attribute of the connection string variable of the connfiguration
                     var settings = ConfigurationManager.ConnectionStrings["MsSqlServer"];
                     var fi = typeof( ConfigurationElement ).GetField( "_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic );
                     fi.SetValue(settings, false);
                     settings.ConnectionString = SystemConnstringTextBox.Text;
 
-
                     membership = Membership.Providers["MsSqlMembershipProvider"];
 
-                    Guid key = new Guid(1,2,3, new byte[] { 10, 20, 30, 40, 50, 60, 70, 80 });
+                    // generate a ProviderUserKey
+                    Random rand = new Random();
+                    Guid key = new Guid(rand.Next(), 2, 3, new byte[] { 10, 20, 30, 40, 50, 60, 70, 80 });
                     ((SqlMembershipProvider)membership).CreateUser(username, password, mail, "Dummy question", "Dummy answer", true, key, out status);
-
                     break;
             }
 
@@ -228,38 +192,13 @@ namespace _min.FirstRun
             SystemDriver sysDriver = new SystemDriver(drv);
             sysDriver.SetUserRights((user.ProviderUserKey), null, 11110);
 
-            //configuration.Save();
-
-            /*
-            // Add an Application Setting.
-            config.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings("SystemConnstring",
-                SystemConnstringTextBox.Text));
-
-            // Save the configuration file.
-            config.Save(ConfigurationSaveMode.Modified);
-
-            // Force a reload of a changed section.
-            ConfigurationManager.RefreshSection("appSettings");
-            */
-
-            /*
-            System.Configuration.Configuration conf = WebConfigurationManager.OpenWebConfiguration(Server.MapPath);
-            conf.ConnectionStrings.ConnectionStrings["comp1"].ConnectionString = _connection_comp1;
-            conf.ConnectionStrings.ConnectionStrings["comp2"].ConnectionString = _connection_comp2;
-            conf.AppSettings.Settings["CompanyCode"].Value = _company_code;
-            conf.Save();
-            
-            System.Configuration.ConfigurationManager.AppSettings["FirstRun"] = "False";
-               */
-
-            //SetFirstRunFalse();
-
-            //configuration.AppSettings.Settings["FirstRun"].Value = "False";
+            // Set FirstRun to false. This cannot be done by the first configuration object - it wil
+            // not like the configuration file since it has been modified by SetDefaultMembershipProvider
+            // in the meantime.
             var config2 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
             config2.AppSettings.Settings["FirstRun"].Value = "False";
             config2.Save();
             Response.RedirectToRoute("DefaultRoute");
-            //Errors.Items.Add("Done");
         }
 
 
