@@ -5,11 +5,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-<asp:ScriptManager ID="ProjectsScriptManager" runat="server">
-</asp:ScriptManager>
 
-    <asp:UpdatePanel ID="ProjectsUpdatePanel" runat="server">
-        <ContentTemplate>
     <asp:GridView ID="ProjectsGrid" runat="server" 
         onrowediting="ProjectsGrid_RowEditing" AutoGenerateColumns="false" DataKeyNames="id_project"
                 Width="920px">
@@ -25,6 +21,4 @@
             <asp:Button ID="InserButton" runat="server" onclick="InserButton_Click" 
                 Text="Insert" />
         
-        </ContentTemplate>
-    </asp:UpdatePanel>
 </asp:Content>

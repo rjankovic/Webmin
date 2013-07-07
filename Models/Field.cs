@@ -668,6 +668,7 @@ namespace _min.Models
                 myControl.DataSource = FKOptions;
                 myControl.DataTextField = "Value";
                 myControl.DataValueField = "Key";
+                myControl.SelectedIndex = 1;
                 myControl.DataBind();
                 return myControl;
             }

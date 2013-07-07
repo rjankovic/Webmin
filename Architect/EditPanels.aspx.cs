@@ -45,10 +45,16 @@ namespace _min.Architect
                 summary.Columns.Add("Independent", typeof(bool));
                 summary.Columns.Add("HasPanels", typeof(bool));
                 summary.Columns.Add("Reachable", typeof(bool));
+
+                List<string> unsuitableData = mm.Stats.UnsuitableTables();
+
                 foreach (string tableName in mm.Stats.Tables)
                 {
-                    if(!mm.Stats.PKs.ContainsKey(tableName))
+                    if(!mm.Stats.PKs.ContainsKey(tableName))    // exclude the PKLess...
                         continue;
+                    if(unsuitableData.Contains(tableName))      // ...and the binary
+                        continue;
+
                     DataRow r = summary.NewRow();
                     r["TableName"] = tableName;     // get it only once - table is stored in Session and updated
 

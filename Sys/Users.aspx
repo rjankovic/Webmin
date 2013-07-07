@@ -2,11 +2,8 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="HeadContent" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <asp:ScriptManager ID="UsersScriptManager" runat="server" 
-        EnablePageMethods="True">
-    </asp:ScriptManager>
-            <asp:UpdatePanel ID="UsersUpdate" runat="server">
-        <ContentTemplate>
+            
+        
     <asp:DropDownList ID="UserSelect" runat="server" 
         onselectedindexchanged="SomeSelect_SelectedIndexChanged" AutoPostBack="True">
     </asp:DropDownList>
@@ -26,11 +23,8 @@
             </ul>
     <asp:Button ID="PermissionsSubmit" runat="server" Text="Save" 
         onclick="PermissionsSubmit_Click" />
-        </ContentTemplate>
-        <Triggers>
-            <asp:AsyncPostBackTrigger ControlID="UserSelect" EventName="SelectedIndexChanged" />
-        </Triggers>
-        </asp:UpdatePanel>
+        
+        
 &nbsp;
     
 </asp:Content>

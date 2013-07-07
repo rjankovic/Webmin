@@ -4,10 +4,6 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="HeadContent" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <asp:ScriptManager ID="MainScriptManager" runat="server">
-    </asp:ScriptManager>
-    <asp:UpdatePanel ID="MainUpdatePanel" runat="server">
-        <ContentTemplate>
             <asp:Wizard ID="InitProposalWizard" runat="server" ActiveStepIndex="4" Height="159px"
                 Width="920px" 
                 onnextbuttonclick="InitProposalWizard_NextButtonClick" 
@@ -69,6 +65,4 @@
 
                 </WizardSteps>
             </asp:Wizard>
-        </ContentTemplate>
-    </asp:UpdatePanel>
 </asp:Content>

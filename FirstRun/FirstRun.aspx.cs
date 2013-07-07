@@ -89,7 +89,7 @@ namespace _min.FirstRun
                 Errors.Items.Add(fe.Message);
                 return;
             }
-
+            
 
             // run the schema dump script
             switch (serverTypeParsed)
@@ -118,6 +118,7 @@ namespace _min.FirstRun
                     SqlConnection conn = new SqlConnection(SystemConnstringTextBox.Text);
                     try
                     {
+                        
                         string query = File.ReadAllText(HttpContext.Current.Server.MapPath(CC.MSSQL_SCHEMA_FILE_PATH));
                         Microsoft.SqlServer.Management.Smo.Server sqlServer = new Server(new ServerConnection(conn));
                         conn.Open();
@@ -125,6 +126,7 @@ namespace _min.FirstRun
                         conn.Close();
 
                         SqlMembershipProvider mssqlProvider = new SqlMembershipProvider();
+                        
                     }
                     catch (Exception esql2)
                     {
@@ -134,7 +136,7 @@ namespace _min.FirstRun
                     }
                     break;
             }
-
+            
             var configuration = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
             var section = (ConnectionStringsSection)configuration.GetSection("connectionStrings");
 
@@ -156,15 +158,17 @@ namespace _min.FirstRun
                     SetDefaultMembershipProvider("MySqlMembershipProvider");
                     
                     // remove the readonly attribute of the connection string variable of the connfiguration
+                    
                     var settingsMy = ConfigurationManager.ConnectionStrings["MsSqlServer"];
                     var fiMy = typeof( ConfigurationElement ).GetField( "_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic );
                     fiMy.SetValue(settingsMy, false);
                     settingsMy.ConnectionString = SystemConnstringTextBox.Text;
                     
                     membership = Membership.Providers["MySqlMembershipProvider"];
-
+                    
                     membership.CreateUser(username, password, mail, "Dummy question", "Dummy answer", true, 1, out status);
                     break;
+                      
 
                 case DbServer.MsSql:
                     section.ConnectionStrings["MsSqlServer"].ConnectionString = SystemConnstringTextBox.Text;
@@ -186,18 +190,22 @@ namespace _min.FirstRun
                     ((SqlMembershipProvider)membership).CreateUser(username, password, mail, "Dummy question", "Dummy answer", true, key, out status);
                     break;
             }
-
+            
             int totalUsers;
             MembershipUser user = membership.FindUsersByName(username, 0, 1, out totalUsers)[username];
             SystemDriver sysDriver = new SystemDriver(drv);
             sysDriver.SetUserRights((user.ProviderUserKey), null, 11110);
+            
 
             // Set FirstRun to false. This cannot be done by the first configuration object - it wil
             // not like the configuration file since it has been modified by SetDefaultMembershipProvider
             // in the meantime.
             var config2 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
             config2.AppSettings.Settings["FirstRun"].Value = "False";
+            System.Web.Configuration.WebConfigurationManager.AppSettings["FirstRun"] = "False";
             config2.Save();
+            
+            Errors.Items.Add("Done.");
             Response.RedirectToRoute("DefaultRoute");
         }
 
@@ -205,13 +213,13 @@ namespace _min.FirstRun
         private void SetDefaultMembershipProvider(string provider)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(Server.MapPath("~/Web.config"));
+            doc.Load(Server.MapPath("~/web.config"));
             XmlNode root = doc.DocumentElement;
             XmlNode myNode = root.SelectSingleNode("descendant::membership");
             XmlAttribute attr = doc.CreateAttribute("defaultProvider");
             attr.Value = provider;
             myNode.Attributes.Append(attr);
-            doc.Save(Server.MapPath("~/Web.config"));
+            doc.Save(Server.MapPath("~/web.config"));
         }
 
     }

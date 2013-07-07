@@ -9,7 +9,7 @@ using _min.Models;
 namespace _min.Models
 {
 
-    class StatsMsSql : IStats 
+    class StatsMsSql : IStats
     {
         private BaseDriverMsSql driver;
         DbDeployableFactory dbe = new DbDeployableFactory();
@@ -24,17 +24,20 @@ namespace _min.Models
         /// <summary>
         /// stores resrutn value of GetColumnTYpes
         /// </summary>
-        public Dictionary<string, DataColumnCollection> ColumnTypes {       // actually Extended datacolumn collection
-            get {
+        public Dictionary<string, DataColumnCollection> ColumnTypes
+        {       // actually Extended datacolumn collection
+            get
+            {
                 if (columnTypes == null)
                     GetColumnTypes();
                 return columnTypes;
             }
-            private set {
+            private set
+            {
                 columnTypes = value;
             }
         }
-        
+
 
         /// <summary>
         /// stores return of ColumnsToDisplay - preferred colums to display in summaries for each table
@@ -48,7 +51,8 @@ namespace _min.Models
                 return columnsToDisplay;
 
             }
-            private set {
+            private set
+            {
                 columnsToDisplay = value;
             }
         }
@@ -56,12 +60,16 @@ namespace _min.Models
         /// <summary>
         /// stores return of FindMappings
         /// </summary>
-        public Dictionary<string, List<M2NMapping>> Mappings {
-            get {
-                if (mappings == null) {
+        public Dictionary<string, List<M2NMapping>> Mappings
+        {
+            get
+            {
+                if (mappings == null)
+                {
                     mappings = new Dictionary<string, List<M2NMapping>>();
                     List<string> tables = TableList();
-                    foreach (string table in tables) {
+                    foreach (string table in tables)
+                    {
                         mappings[table] = new List<M2NMapping>();
                     }
                     List<M2NMapping> amp = FindMappings();
@@ -72,7 +80,8 @@ namespace _min.Models
                                       table = g.Key,
                                       mappings = g.ToList<M2NMapping>()
                                   };
-                    foreach (var group in grouped) {
+                    foreach (var group in grouped)
+                    {
                         mappings[group.table] = group.mappings;
                     }
                 }
@@ -83,8 +92,10 @@ namespace _min.Models
         /// <summary>
         /// list of PK columns for each table
         /// </summary>
-        public Dictionary<string, List<string>> PKs {
-            get {
+        public Dictionary<string, List<string>> PKs
+        {
+            get
+            {
                 if (globalPKs == null) globalPKs = PrimaryKeyCols();
                 return globalPKs;
             }
@@ -93,8 +104,10 @@ namespace _min.Models
         /// <summary>
         /// list of foreign keys for each table
         /// </summary>
-        public Dictionary<string, List<FK>> FKs {
-            get {
+        public Dictionary<string, List<FK>> FKs
+        {
+            get
+            {
                 if (globalFKs == null)
                     globalFKs = ForeignKeys();
                 return globalFKs;
@@ -104,8 +117,10 @@ namespace _min.Models
         /// <summary>
         /// list of tables in the db
         /// </summary>
-        public List<string> Tables {
-            get {
+        public List<string> Tables
+        {
+            get
+            {
                 if (tables == null)
                     tables = TableList();
                 return tables;
@@ -121,10 +136,13 @@ namespace _min.Models
         /// changes the preferred display columns to those passed in the argument
         /// </summary>
         /// <param name="pref">user display preferences</param>
-        public void SetDisplayPreferences(Dictionary<string, string> pref) {
-            
-            foreach (string tblName in pref.Keys) {
-                if (ColumnsToDisplay[tblName][0] != pref[tblName]) {
+        public void SetDisplayPreferences(Dictionary<string, string> pref)
+        {
+
+            foreach (string tblName in pref.Keys)
+            {
+                if (ColumnsToDisplay[tblName][0] != pref[tblName])
+                {
                     string top = columnsToDisplay[tblName][0];
                     // automatically proposed top of display order will now be at the position where the new
                     // top (given by the user preference) used to be - simpy swap
@@ -132,7 +150,7 @@ namespace _min.Models
                     columnsToDisplay[tblName][0] = pref[tblName];
                 }
             }
-             
+
         }
 
         /// <summary>
@@ -143,19 +161,20 @@ namespace _min.Models
         private void GetColumnTypes()
         {
             DataTable stats = driver.fetchAll("SELECT COLS.*,"
-                 +" COLUMNPROPERTY(OBJECT_ID(COLS.TABLE_NAME), COLS.COLUMN_NAME, 'IsIdentity') AS 'HAS_IDENTITY'"
-                 +" FROM INFORMATION_SCHEMA.COLUMNS AS COLS"
-                 +" JOIN INFORMATION_SCHEMA.TABLES AS TBLS ON COLS.TABLE_NAME = TBLS.TABLE_NAME " +  
+                 + " COLUMNPROPERTY(OBJECT_ID(COLS.TABLE_NAME), COLS.COLUMN_NAME, 'IsIdentity') AS 'HAS_IDENTITY'"
+                 + " FROM INFORMATION_SCHEMA.COLUMNS AS COLS"
+                 + " JOIN INFORMATION_SCHEMA.TABLES AS TBLS ON COLS.TABLE_NAME = TBLS.TABLE_NAME " +
                 "WHERE TBLS.TABLE_SCHEMA = 'dbo' AND TABLE_TYPE = 'BASE TABLE' ORDER BY COLS.TABLE_NAME, ORDINAL_POSITION");
-            
+
             Dictionary<string, DataColumnCollection> res = new Dictionary<string, DataColumnCollection>();
 
             BaseDriverMsSql tempWebDb = new BaseDriverMsSql(Common.Environment.project.ConnstringWeb);
-            
+
             tempWebDb.BeginTransaction();
 
             //tempWebDb.query("SET SQL_SELECT_LIMIT=0");
-            foreach(string tableName in TableList()){
+            foreach (string tableName in TableList())
+            {
                 DataTable schema = tempWebDb.fetchAll("SELECT TOP 0 * FROM ", dbe.Table(tableName));
                 res[tableName] = schema.Columns;
             }
@@ -164,20 +183,22 @@ namespace _min.Models
             tempWebDb = null;
 
 
-            foreach (DataRow r in stats.Rows) {
+            foreach (DataRow r in stats.Rows)
+            {
                 DataColumn col = res[r["TABLE_NAME"] as string][r["COLUMN_NAME"] as string];        // set ColumnName
 
 
                 //string dataType = r["DATA_TYPE"] as string;
-                
-                
-                if (col.DataType == typeof(string)) {
+
+
+                if (col.DataType == typeof(string))
+                {
                     col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
                 }
                 bool hasIdentity = (int)r["HAS_IDENTITY"] == 1;    // set AutoIncrement
                 if (hasIdentity)
                     col.AutoIncrement = true;
-                if(!col.AutoIncrement)
+                if (!col.AutoIncrement)
                     col.ExtendedProperties.Add(Common.Constants.COLUMN_EDITABLE, true); // TODO add more restrictive rules...
 
                 object colDefault = r["COLUMN_DEFAULT"];      // set DefaultValue
@@ -218,25 +239,28 @@ namespace _min.Models
                 }
 
                 col.AllowDBNull = ((string)r["IS_NULLABLE"]) == "YES";
-                if(!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
+                if (!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
 
-                
+
             }       // for each row in stats
             columnTypes = res;
 
             ColumnsToDisplay = new Dictionary<string, List<string>>();
             IComparer<DataColumn> comparer = new Common.ColumnDisplayComparer();
-            foreach (string tableName in columnTypes.Keys) {
+            foreach (string tableName in columnTypes.Keys)
+            {
                 List<DataColumn> innerList = new List<DataColumn>();
                 foreach (DataColumn col in columnTypes[tableName])
                     innerList.Add(col);
                 innerList.Sort(comparer);
                 columnsToDisplay[tableName] = (from DataColumn c in innerList select c.ColumnName).ToList<string>();
-            
+
             }
-            
-            foreach (string tableName in FKs.Keys) {
-                foreach (FK fk in FKs[tableName]) { 
+
+            foreach (string tableName in FKs.Keys)
+            {
+                foreach (FK fk in FKs[tableName])
+                {
                     columnTypes[fk.myTable][fk.myColumn].ExtendedProperties["FK"] = fk;
                 }
             }
@@ -247,7 +271,8 @@ namespace _min.Models
         /// searches the db for FKs and converts them into FK objects
         /// </summary>
         /// <returns>Dictionary&lt;TableName, ListOfFKs&gt;</returns>
-        public Dictionary<string, List<FK>> ForeignKeys() {
+        public Dictionary<string, List<FK>> ForeignKeys()
+        {
             Dictionary<string, List<FK>> res = new Dictionary<string, List<FK>>();
             //!!!!!!!!
             DataTable stats = driver.fetchAll(
@@ -272,9 +297,10 @@ AND REF_CONST.UNIQUE_CONSTRAINT_NAME = PK.CONSTRAINT_NAME
 AND PK.CONSTRAINT_TYPE = 'PRIMARY KEY'
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_NAME = FK_COLS.CONSTRAINT_NAME
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME");
-//HAVING TABLE_CATALOG = REFERENCED_TABLE_CATALOG"); (somehow should be here)
+            //HAVING TABLE_CATALOG = REFERENCED_TABLE_CATALOG"); (somehow should be here)
 
-            foreach (string tblName in Tables) {
+            foreach (string tblName in Tables)
+            {
                 res[tblName] = new List<FK>();
             }
 
@@ -284,14 +310,15 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
                 res[tbl].Add(new FK(tbl, r["COLUMN_NAME"] as string, r["REFERENCED_TABLE_NAME"] as string,
                     r["REFERENCED_COLUMN_NAME"] as string, ColumnsToDisplay[r["REFERENCED_TABLE_NAME"] as string][0]));
             }
-            return res;        
+            return res;
         }
 
         /// <summary>
         /// finds the hierarchical relation within table only if valid for use in a NavTree
         /// </summary>
         /// <returns></returns>
-        public List<FK> SelfRefFKs() {
+        public List<FK> SelfRefFKs()
+        {
             return FKs.SelectMany(kv => from fk in kv.Value where fk.refTable == fk.myTable select fk).ToList<FK>();
         }
 
@@ -299,7 +326,8 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
         /// primary key columns for tables in the database
         /// </summary>
         /// <returns>TableName->ListOfColumns</returns>
-        public Dictionary<string, List<string>> PrimaryKeyCols(){
+        public Dictionary<string, List<string>> PrimaryKeyCols()
+        {
 
             DataTable stats = driver.fetchAll("SELECT ccu.TABLE_NAME, ccu.COLUMN_NAME " +
                     "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc " +
@@ -308,7 +336,8 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
 
             Dictionary<string, List<string>> res = new Dictionary<string, List<string>>();
             string tblName;
-            foreach (DataRow r in stats.Rows) {
+            foreach (DataRow r in stats.Rows)
+            {
                 tblName = r["TABLE_NAME"] as string;
                 if (!res.ContainsKey(tblName)) res[tblName] = new List<string>();
                 res[tblName].Add(r["COLUMN_NAME"] as string);
@@ -321,7 +350,8 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
         /// tables without a primary key cannot participate in the interface - the primary key is used for navigation (see the Navigator class)
         /// </summary>
         /// <returns>list of the tables</returns>
-        public List<string> TablesMissingPK() {
+        public List<string> TablesMissingPK()
+        {
             return (from tbl in Tables where !PKs.ContainsKey(tbl) select tbl).ToList<string>();
         }
 
@@ -329,7 +359,8 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
         /// simply lists the tables in the database
         /// </summary>
         /// <returns></returns>
-        public List<string> TableList() {
+        public List<string> TableList()
+        {
             DataTable tab = driver.fetchAll("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' "
             + "AND TABLE_TYPE = ", dbe.InObj("BASE TABLE"), " ORDER BY TABLE_NAME");
             return new List<string>(from row in tab.AsEnumerable() select row["TABLE_NAME"] as string);
@@ -361,7 +392,7 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
                     res.Add(new M2NMapping(currTabFKs[0].refTable, currTabFKs[0].refColumn, currTabFKs[1].refTable,
                         currTabFKs[1].refColumn, currTabFKs[0].myTable, currTabFKs[0].refColumn,
                         currTabFKs[0].myColumn, currTabFKs[1].myColumn));
-                    
+
                     res.Add(new M2NMapping(currTabFKs[1].refTable, currTabFKs[1].refColumn, currTabFKs[0].refTable,
                         currTabFKs[0].refColumn, currTabFKs[1].myTable, currTabFKs[1].refColumn,
                         currTabFKs[1].myColumn, currTabFKs[0].myColumn));
@@ -370,5 +401,29 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
             return res;
         }
 
+
+        /// <summary>
+        /// fetches the names of tables containing binary, varbinary or image columns - not editable by the field types available
+        /// </summary>
+        /// <returns></returns>
+        public List<string> UnsuitableTables()
+        {
+            DataTable tbl = driver.fetchAll(@"
+SELECT o.[name]
+FROM sys.all_columns c
+INNER JOIN sys.all_objects o
+ON c.object_id = o.object_id
+INNER JOIN sys.types t
+ON c.system_type_id = t.system_type_id
+INNER JOIN sys.tables tbl
+ON  tbl.object_id = o.object_id
+WHERE c.system_type_id IN (165, 34, 173)
+AND o.[name] NOT LIKE 'sys%'
+AND o.[name] <> 'dtproperties'
+AND o.[type] = 'U' GROUP BY o.[name]
+                ");
+
+            return (from row in tbl.AsEnumerable() select row["name"] as string).ToList<string>();
+        }
     }
 }

@@ -5,9 +5,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <asp:ScriptManager ID="ProjectsScriptManager" runat="server">
-</asp:ScriptManager>
-
+    
     <asp:DetailsView ID="DetailsView" runat="server" AutoGenerateRows="False" 
         DefaultMode="Insert"
         onitemcommand="DetailsView_ItemCommand" 
@@ -42,10 +40,7 @@
     />
 
 
-    <asp:UpdatePanel ID="ProjectsUpdatePanel" runat="server">
-        <ContentTemplate>
             <asp:BulletedList ID="InfoList" runat="server">
             </asp:BulletedList>
-        </ContentTemplate>
-    </asp:UpdatePanel>
+
 </asp:Content>

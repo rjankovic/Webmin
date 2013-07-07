@@ -47,12 +47,23 @@ namespace _min.Architect
             {
                 FirstProblemList.Items.Clear();
                 List<string> PKless = mm.Stats.TablesMissingPK();
-                if (PKless.Count > 0)
+                List<string> strangeData = mm.Stats.UnsuitableTables();
+
+                if (PKless.Count > 0 || strangeData.Count > 0)
                 {
                     foreach (string table in PKless)
                     {
                         FirstProblemList.Items.Add("Table " + table + " has no primary key defined." +
                             " If you continue, this table will be ommitted from the proposal. You may as well add the PK and check again");
+                    }
+                    foreach (string table in strangeData)
+                    { 
+                        FirstProblemList.Items.Add(String.Format("Table {0} contains some binary or other data types that cannot be " +
+                            " edited by the means currently available. This table will be excluded from the proposal.", table));
+                        if (!PKless.Contains(table))
+                        {
+                            PKless.Add(table);
+                        }
                     }
                 }
                 else

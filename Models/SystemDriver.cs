@@ -208,7 +208,12 @@ namespace _min.Models
         #endregion
 
         public void IncreaseVersionNumber() {
-            driver.query("UPDATE", dbe.Table("projects"), "SET ", dbe.Col("version"), " = ", dbe.Col("version"), " + 1");
+
+            DataTable projectsTable = GetProjects();
+            DataRow projectRow = projectsTable.Rows.Find(CE.project.Id);
+            projectRow["version"] = (int)projectRow["version"] + 1;
+            SaveProjectsTable(projectsTable);
+            //driver.query("UPDATE", dbe.Table("projects"), "SET ", dbe.Col("version"), " = ", dbe.Col("version"), " + 1");
         }
 
 
@@ -717,15 +722,22 @@ namespace _min.Models
         /// <param name="userId"></param>
         /// <param name="adminOf"></param>
         /// <param name="architectOf"></param>
-        public void UserMenuOptions(object userId, out List<string> adminOf, out List<string> architectOf) { 
-            FK access_project = new FK("access_rights", "id_project", "projects", "id_project", null);
-            DataTable admin = driver.fetchAll("SELECT", dbe.Col("projects", "name", null), "FROM", dbe.Table("access_rights"),
-                dbe.Join(access_project), "WHERE", dbe.Col("id_user"), " = ", dbe.InObj(userId.ToString()), " AND " , dbe.Col("access_rights", "access", null), " % 100 >= 10");
-            adminOf = (from DataRow r in admin.Rows select r[0] as string).ToList<string>();
+        public void UserMenuOptions(object userId, out List<string> adminOf, out List<string> architectOf) {
+            DataTable projects = GetProjects();
             
-            DataTable architect = driver.fetchAll("SELECT", dbe.Col("projects", "name", null), "FROM ", dbe.Table("access_rights"),
+            DataTable admin = driver.fetchAll("SELECT", dbe.Col("id_project"), "FROM", dbe.Table("access_rights"),
+                "WHERE", dbe.Col("id_user"), " = ", dbe.InObj(userId.ToString()), " AND " , dbe.Col("access_rights", "access", null), " % 100 >= 10");
+            adminOf = (from p in projects.AsEnumerable() join a in admin.AsEnumerable() on p["id_project"] equals a["id_project"] select p["name"] as string).ToList<string>();
+
+            DataTable architect = driver.fetchAll("SELECT", dbe.Col("id_project"), "FROM", dbe.Table("access_rights"),
+                "WHERE", dbe.Col("id_user"), " = ", dbe.InObj(userId.ToString()), " AND ", dbe.Col("access_rights", "access", null), " % 1000 >= 100");
+            architectOf = (from p in projects.AsEnumerable() join a in architect.AsEnumerable() on p["id_project"] equals a["id_project"] select p["name"] as string).ToList<string>();
+            /*
+
+                       DataTable architect = driver.fetchAll("SELECT", dbe.Col("projects", "name", null), "FROM ", dbe.Table("access_rights"),
                 dbe.Join(access_project), "WHERE", dbe.Col("id_user"), " = ", dbe.InObj(userId.ToString()), " AND ", dbe.Col("access_rights", "access", null), " % 1000 >= 100");
             architectOf = (from DataRow r in architect.Rows select r[0] as string).ToList<string>();
+             */ 
         }
 
         public void ReleaseLock(object userId, int project, LockTypes lockType) { 

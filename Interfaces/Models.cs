@@ -138,6 +138,7 @@ namespace _min.Interfaces
         Dictionary<string, List<string>> PKs { get; }
         Dictionary<string, List<FK>> FKs { get; }
         List<string> Tables { get; }
+        List<string> UnsuitableTables();
         void SetDisplayPreferences(Dictionary<string, string> pref);
     }
 

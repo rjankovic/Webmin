@@ -106,9 +106,6 @@ namespace _min.Shared
             else {
                 CreatePanelHeading(MainPanel);
             }
-
-
-
         }
 
 
@@ -124,9 +121,21 @@ namespace _min.Shared
             {
                 string decoded = Server.UrlDecode(queryString[i]);
                 if (row.Table.Columns[i].DataType == typeof(int))
+                {
                     row[i] = Int32.Parse(decoded);
+                }
+                else if (row.Table.Columns[i].DataType == typeof(MySql.Data.Types.MySqlDateTime))
+                {
+                    row[i] = new MySql.Data.Types.MySqlDateTime(decoded);
+                }
+                else if (row.Table.Columns[i].DataType == typeof(DateTime))
+                {
+                    row[i] = DateTime.Parse(decoded);
+                }
                 else
+                {
                     row[i] = decoded;
+                }
             }
             panel.PK = row;
         }
@@ -155,7 +164,7 @@ namespace _min.Shared
 
                 LinkButton editPanelsLink = new LinkButton();
                 editPanelsLink.PostBackUrl = editPanelsLink.GetRouteUrl("ArchitectEditPanelsRoute", new { projectName = CE.project.Name });
-                editPanelsLink.Text = "Edit panels structure";
+                editPanelsLink.Text = "Include & exclude tables";
                 editPanelsLink.CausesValidation = false;
                 heading.Controls.Add(editPanelsLink);
 
@@ -199,7 +208,6 @@ namespace _min.Shared
                 container.Controls.Add(clear);
             }
         }
-
 
 
         void CreateWebControlsForPanel(MPanel activePanel, System.Web.UI.WebControls.Panel containerPanel)
@@ -443,9 +451,14 @@ namespace _min.Shared
         }
 
         private void AdminLockAlert() {
+
+            _min.Common.ValidationError.Display("alert('The website administration structure is being changed currently. "
+                            + "Please save your data elsewhere if neccessary and come back later.');", Page);
+            /*
             ScriptManager.RegisterStartupScript(Page, this.GetType(), "myScript",
                     "alert('The website administration structure is being changed currently. "
-                            + "Please save your data elsewhere if neccessary and come back later.');", true);        
+                            + "Please save your data elsewhere if neccessary and come back later.');", true);
+             */ 
         }
 
         protected void GridView_PageIndexChanging(object sender, GridViewPageEventArgs e)

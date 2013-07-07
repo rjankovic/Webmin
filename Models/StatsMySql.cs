@@ -226,7 +226,12 @@ namespace _min.Models
                 }
 
                 col.AllowDBNull = ((string)r["IS_NULLABLE"]) == "YES";
-                if(!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
+                try
+                {
+                    if (!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
+                }
+                catch
+                { }
 
                 
             }       // for each row in stats
@@ -324,6 +329,17 @@ namespace _min.Models
             DataTable stats = driver.fetchAll("SELECT L.TABLE_NAME FROM (SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA =  '"
                 + webDb + "' AND TABLE_TYPE = 'BASE TABLE') AS L LEFT JOIN (SELECT TABLE_NAME FROM KEY_COLUMN_USAGE WHERE TABLE_SCHEMA =  '"
                 + webDb + "' AND CONSTRAINT_NAME =  'PRIMARY' GROUP BY TABLE_NAME) AS R USING ( TABLE_NAME ) WHERE R.TABLE_NAME IS NULL");
+            return new List<string>(from row in stats.AsEnumerable() select row["TABLE_NAME"] as string);
+        }
+
+        /// <summary>
+        /// tables binary tables that cannot be edited via any of the field types provided
+        /// </summary>
+        /// <returns></returns>
+        public List<string> UnsuitableTables()
+        {
+            DataTable stats = driver.fetchAll("SELECT TABLE_NAME FROM COLUMNS WHERE TABLE_SCHEMA = ", dbe.InObj(webDb), 
+                " AND (DATA_TYPE LIKE '%BLOB%' OR DATA_TYPE LIKE '%BINARY%' OR DATA_TYPE = 'SET') GROUP BY TABLE_NAME");
             return new List<string>(from row in stats.AsEnumerable() select row["TABLE_NAME"] as string);
         }
 

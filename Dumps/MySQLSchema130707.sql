@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 07, 2013 at 05:11 PM
+-- Generation Time: Jul 06, 2013 at 05:22 PM
 -- Server version: 5.1.69
 -- PHP Version: 5.3.2-1ubuntu4.19
 
@@ -18,7 +18,7 @@ START TRANSACTION;
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `webmin`
+-- Database: `webmin_install`
 --
 
 -- --------------------------------------------------------
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `access_rights` (
   UNIQUE KEY `id_user_2` (`id_user`,`id_project`),
   KEY `id_user` (`id_user`),
   KEY `id_project` (`id_project`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=41 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=40 ;
 
 --
 -- Dumping data for table `access_rights`
@@ -127,6 +127,72 @@ CREATE TABLE IF NOT EXISTS `locks` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `log_db`
+--
+
+CREATE TABLE IF NOT EXISTS `log_db` (
+  `id_log` bigint(20) NOT NULL AUTO_INCREMENT,
+  `query` text NOT NULL,
+  `total_time` int(11) NOT NULL,
+  `count` int(11) NOT NULL,
+  `max_time` int(11) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_log`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6831 ;
+
+--
+-- Dumping data for table `log_db`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `log_db_archive`
+--
+
+CREATE TABLE IF NOT EXISTS `log_db_archive` (
+  `id_log` bigint(20) NOT NULL AUTO_INCREMENT,
+  `query` text NOT NULL,
+  `total_time` int(11) NOT NULL,
+  `count` int(11) NOT NULL,
+  `max_time` int(11) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `comment` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_log`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `log_db_archive`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `log_users`
+--
+
+CREATE TABLE IF NOT EXISTS `log_users` (
+  `id_log` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_user` int(11) NOT NULL,
+  `id_panel` int(11) NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `param` tinyblob NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `pid` int(11) NOT NULL,
+  PRIMARY KEY (`id_log`),
+  KEY `id_user` (`id_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `log_users`
+--
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mysql_Membership`
 --
 
@@ -164,6 +230,41 @@ CREATE TABLE IF NOT EXISTS `mysql_Membership` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `mysql_Roles`
+--
+
+CREATE TABLE IF NOT EXISTS `mysql_Roles` (
+  `Rolename` varchar(255) NOT NULL,
+  `ApplicationName` varchar(255) NOT NULL,
+  KEY `Rolename` (`Rolename`,`ApplicationName`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `mysql_Roles`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mysql_UsersInRoles`
+--
+
+CREATE TABLE IF NOT EXISTS `mysql_UsersInRoles` (
+  `Username` varchar(255) NOT NULL,
+  `Rolename` varchar(255) NOT NULL,
+  `ApplicationName` varchar(255) NOT NULL,
+  KEY `Username` (`Username`,`Rolename`,`ApplicationName`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `mysql_UsersInRoles`
+--
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `my_aspnet_applications`
 --
 
@@ -172,14 +273,12 @@ CREATE TABLE IF NOT EXISTS `my_aspnet_applications` (
   `name` varchar(256) DEFAULT NULL,
   `description` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
 -- Dumping data for table `my_aspnet_applications`
 --
 
-INSERT INTO `my_aspnet_applications` (`id`, `name`, `description`) VALUES
-(2, '/', 'MySQL default application');
 
 -- --------------------------------------------------------
 
@@ -212,6 +311,44 @@ CREATE TABLE IF NOT EXISTS `my_aspnet_membership` (
 
 --
 -- Dumping data for table `my_aspnet_membership`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `my_aspnet_profiles`
+--
+
+CREATE TABLE IF NOT EXISTS `my_aspnet_profiles` (
+  `userId` int(11) NOT NULL,
+  `valueindex` longtext,
+  `stringdata` longtext,
+  `binarydata` longblob,
+  `lastUpdatedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`userId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `my_aspnet_profiles`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `my_aspnet_roles`
+--
+
+CREATE TABLE IF NOT EXISTS `my_aspnet_roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `applicationId` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC AUTO_INCREMENT=30 ;
+
+--
+-- Dumping data for table `my_aspnet_roles`
 --
 
 
@@ -286,7 +423,7 @@ CREATE TABLE IF NOT EXISTS `my_aspnet_users` (
   `isAnonymous` tinyint(1) NOT NULL DEFAULT '1',
   `lastActivityDate` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `my_aspnet_users`
@@ -333,9 +470,36 @@ CREATE TABLE IF NOT EXISTS `panels` (
 --
 
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `projects`
+--
+
+CREATE TABLE IF NOT EXISTS `projects` (
+  `id_project` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `connstring_web` varchar(255) NOT NULL,
+  `connstring_information_schema` varchar(255) NOT NULL,
+  `server_type` enum('MySQL','MSSQL','Oracle') NOT NULL,
+  `version` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_project`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
+
+--
+-- Dumping data for table `projects`
+--
+
+
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `access_rights`
+--
+ALTER TABLE `access_rights`
+  ADD CONSTRAINT `access_rights_ibfk_1` FOREIGN KEY (`id_project`) REFERENCES `projects` (`id_project`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `controls`
@@ -356,9 +520,16 @@ ALTER TABLE `hierarchy_nav_tables`
   ADD CONSTRAINT `hierarchy_nav_tables_ibfk_1` FOREIGN KEY (`id_control`) REFERENCES `controls` (`id_control`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `locks`
+--
+ALTER TABLE `locks`
+  ADD CONSTRAINT `locks_ibfk_1` FOREIGN KEY (`id_project`) REFERENCES `projects` (`id_project`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `panels`
 --
 ALTER TABLE `panels`
+  ADD CONSTRAINT `panels_ibfk_1` FOREIGN KEY (`id_project`) REFERENCES `projects` (`id_project`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `panels_ibfk_3` FOREIGN KEY (`id_parent`) REFERENCES `panels` (`id_panel`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `panels_ibfk_4` FOREIGN KEY (`id_holder`) REFERENCES `fields` (`id_field`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
