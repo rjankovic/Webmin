@@ -6,7 +6,7 @@
     <connstring_web>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=naborycz; pooling=true; Allow Zero Datetime=true;CharSet=utf8;</connstring_web>
     <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=false</connstring_information_schema>
     <server_type>MySql</server_type>
-    <version>2161</version>
+    <version>2162</version>
   </Table>
   <Table>
     <id_project>2</id_project>
@@ -47,5 +47,21 @@
     <connstring_information_schema>Server=85.248.220.75; Uid=dotnet; Pwd=dotnet; Database=information_schema; pooling=true; Allow Zero Datetime=true</connstring_information_schema>
     <server_type>MySql</server_type>
     <version>62</version>
+  </Table>
+  <Table>
+    <id_project>18</id_project>
+    <name>Bottleneck</name>
+    <connstring_web>Data Source=RJ-THINK;Initial Catalog=bottleneck;Integrated Security=True</connstring_web>
+    <connstring_information_schema>Data Source=RJ-THINK;Initial Catalog=bottleneck;Integrated Security=True</connstring_information_schema>
+    <server_type>MsSql</server_type>
+    <version>12</version>
+  </Table>
+  <Table>
+    <id_project>19</id_project>
+    <name>Webmin</name>
+    <connstring_web>Data Source=RJ-THINK;Initial Catalog=test0;Integrated Security=True</connstring_web>
+    <connstring_information_schema>Data Source=RJ-THINK;Initial Catalog=test0;Integrated Security=True</connstring_information_schema>
+    <server_type>MsSql</server_type>
+    <version>1</version>
   </Table>
 </DocumentElement>

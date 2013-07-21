@@ -549,7 +549,7 @@ namespace _min.Models
         {
             get
             {
-                return "Checkbox";
+                return "CheckBox";
             }
         }
 

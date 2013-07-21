@@ -245,7 +245,7 @@ namespace _min.Models
         /// <param name="tableName"></param>
         /// <param name="columnName"></param>
         /// <returns></returns>
-        protected virtual bool CheckUniqueness(string tableName, string columnName)
+        protected virtual bool CheckUniquenessInSchema(string tableName, string columnName)
         {
             DataTable schema = fetchSchema("SELECT", dbe.Col(columnName), " FROM", dbe.Table(tableName));
             return schema.Columns[0].Unique;
@@ -273,6 +273,12 @@ namespace _min.Models
         {
             return Int64.Parse(fetchSingle("SELECT COUNT(*) FROM", dbe.Table(tableName),
             " WHERE NOT ", dbe.Col(idColumnName), "=", dbe.InObj(id), " AND ", dbe.Col(columnName), " =", dbe.InObj(newValue)).ToString()) == 0;     // boolean return
+        }
+
+        public virtual bool CheckUniquenessManually(string tableName, string columnname)
+        {
+            return Int64.Parse(fetchSingle("SELECT MAX(c) FROM ( SELECT COUNT(", dbe.Col(columnname), ") c FROM", dbe.Table(tableName), 
+                "GROUP BY", dbe.Col(columnname), ") tmp").ToString()) == 1;
         }
 
         public abstract void TestConnection();

@@ -150,6 +150,7 @@
     <Content Include="Dumps\mysql_structure130508.sql" />
     <Content Include="Dumps\mysql_structure130511.sql" />
     <Content Include="Error\Lockout.aspx" />
+    <Content Include="FirstRun\FirstRunMono.aspx" />
     <Content Include="FirstRun\FirstRun.aspx" />
     <Content Include="Misc\KeepAlive.aspx" />
     <Content Include="packages.config" />
@@ -162,7 +163,9 @@
     <Content Include="README.md" />
     <Content Include="Architect\Web.config" />
     <Content Include="FirstRun\Web.config" />
-    <Content Include="Dumps\Web.config" />
+    <Content Include="Dumps\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Dumps\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -195,7 +198,9 @@
     <Content Include="Sys\ProjectDetail.aspx" />
     <Content Include="Sys\Projects.aspx" />
     <Content Include="Sys\Users.aspx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\FlyBoyBB.otf" />
     <Content Include="Shared\Web.config" />
     <Content Include="Sys\Web.config" />
@@ -301,6 +306,13 @@
     </Compile>
     <Compile Include="Error\Lockout.aspx.designer.cs">
       <DependentUpon>Lockout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FirstRun\FirstRunMono.aspx.cs">
+      <DependentUpon>FirstRunMono.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FirstRun\FirstRunMono.aspx.designer.cs">
+      <DependentUpon>FirstRunMono.aspx</DependentUpon>
     </Compile>
     <Compile Include="FirstRun\FirstRun.aspx.cs">
       <DependentUpon>FirstRun.aspx</DependentUpon>

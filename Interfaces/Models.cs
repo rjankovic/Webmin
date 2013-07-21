@@ -32,6 +32,7 @@ namespace _min.Interfaces
         void TestDatabaseIsEmpty();
         bool CheckUniqueness(string tableName, string columnName, object newValue, DataRow updatedItemPK = null);
         bool CheckUniqueness(string tableName, string columnName, object newValue, string idColumnName, int id);
+        bool CheckUniquenessManually(string tableName, string columnName);
     }
 
     public interface IQueryDeployable { }

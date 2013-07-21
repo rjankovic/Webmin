@@ -239,8 +239,11 @@ namespace _min.Models
                 }
 
                 col.AllowDBNull = ((string)r["IS_NULLABLE"]) == "YES";
-                if (!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
-
+                try
+                {
+                    if (!(r["CHARACTER_MAXIMUM_LENGTH"] is DBNull)) col.MaxLength = Convert.ToInt32(r["CHARACTER_MAXIMUM_LENGTH"]);
+                }
+                catch { }
 
             }       // for each row in stats
             columnTypes = res;
@@ -382,7 +385,7 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = P
         {
             List<M2NMapping> res = new List<M2NMapping>();
             List<string> twoColTabs = TwoColumnTables();
-            List<List<FK>> twoColFKs = new List<List<FK>>(from table in twoColTabs select FKs[table]);
+            List<List<FK>> twoColFKs = new List<List<FK>>(from table in twoColTabs where FKs.ContainsKey(table) select FKs[table]);
             foreach (List<FK> currTabFKs in twoColFKs)
             {
                 if (currTabFKs.Count == 2)

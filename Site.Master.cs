@@ -65,8 +65,11 @@ namespace _min
             else 
                 Common.Environment.GlobalState = GlobalState.Error;
 
+
+            bool firstRunMono = System.Configuration.ConfigurationManager.AppSettings["FirstRunMono"] == "True";
             
-            if(isFirstRun && Common.Environment.GlobalState != GlobalState.FirstRun)
+
+            if(isFirstRun && Common.Environment.GlobalState != GlobalState.FirstRun && !firstRunMono)
             {
                 Response.Redirect("~/FirstRun/FirstRun.aspx");
             }
@@ -80,7 +83,9 @@ namespace _min
                 (user is MembershipUser) ? (Session.Timeout - 5).ToString() : "-1";
 
             if (isFirstRun)
+            {
                 return;
+            }
 
             user = Membership.GetUser();
 
@@ -91,8 +96,6 @@ namespace _min
                 FormsAuthentication.SignOut();
                 Response.RedirectToRoute("LockoutRoute", new { message = 7 });
             }
-
-            
 
 
             IBaseDriver systemBaseDriver = null;
@@ -111,6 +114,23 @@ namespace _min
             }
 
             SysDriver = new SystemDriver(systemBaseDriver);
+
+
+
+            if (firstRunMono && CE.GlobalState != GlobalState.FirstRun)
+            {
+                Response.Redirect("~/FirstRun/FirstRunMono.aspx");
+            }
+            if (!firstRunMono && CE.GlobalState == GlobalState.FirstRun)
+            {
+                Response.RedirectToRoute("DefaultRoute");
+            }
+
+            if (firstRunMono)
+            {
+                return;
+            }
+
             
             // global service
 

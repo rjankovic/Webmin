@@ -44,7 +44,7 @@ namespace _min.Models
             List<string> PKCols = stats.PKs[tableName];
 
             List<IField> fields = new List<IField>();
-            
+
 
             foreach (M2NMapping mapping in mappings)    // find mappings related to this table
             {
@@ -55,10 +55,13 @@ namespace _min.Models
             }
 
             List<IColumnFieldFactory> factories = (List<IColumnFieldFactory>)(System.Web.HttpContext.Current.Application["ColumnFieldFactories"]);
-            foreach (DataColumn col in cols) {
+            foreach (DataColumn col in cols)
+            {
                 if (col.AutoIncrement) continue;
-                IColumnFieldFactory leadingFactory = (from f in factories where f.CanHandle(col) && !(f is ICustomizableColumnFieldFactory) 
-                                                      orderby f.Specificity descending select f).FirstOrDefault();
+                IColumnFieldFactory leadingFactory = (from f in factories
+                                                      where f.CanHandle(col) && !(f is ICustomizableColumnFieldFactory)
+                                                      orderby f.Specificity descending
+                                                      select f).FirstOrDefault();
                 if (leadingFactory == null && !col.AllowDBNull)
                     return null;
                 IColumnField field = leadingFactory.Create(col);
@@ -70,7 +73,7 @@ namespace _min.Models
             PropertyCollection controlProps = new PropertyCollection();
             PropertyCollection viewProps = new PropertyCollection();
             string panelName = tableName + " Editation";
-            
+
             List<Control> controls = new List<Control>();
 
             // all the controls
@@ -134,7 +137,7 @@ namespace _min.Models
             if (hierarchies.Contains(tableName))
                 selfRefFK = selfRefs.First();
             List<string> displayColOrder = stats.ColumnsToDisplay[tableName];
-            
+
             Control control;
             DataTable controlTab = new DataTable();
 
@@ -149,7 +152,7 @@ namespace _min.Models
                 Controls.Add(control);
                 control = new Control(0, null, PKCols, UserAction.Insert);
                 Controls.Add(control);
-                
+
                 res.AddControls(Controls);
                 return res;
             }
@@ -221,7 +224,7 @@ namespace _min.Models
                     tableSummaryRow.ParentId = tableRow.Id;
                     tableEditRow.ParentId = tableRow.Id;
                     tableRow.NavId = null;
-                    
+
                     tableRow.Caption = tableName;
                     tableEditRow.Caption = "Add";
                     tableSummaryRow.Caption = "Browse";
@@ -231,7 +234,7 @@ namespace _min.Models
                     basePanelHierarchy.Add(tableSummaryRow);
                 }
             }
-            
+
             Panel basePanel = new Panel(null, 0, PanelTypes.MenuDrop,
                 baseChildren, null, null, null);
             basePanel.panelName = "Main page";
@@ -250,7 +253,7 @@ namespace _min.Models
                 basePanelHierarchy.Rows[i * 3 + 2]["NavId"] = basePanel.children[2 * i + 1].panelId;
             }
 
-            
+
             List<Control> addedList = new List<Control>();
             addedList.Add(basePanelTreeControl);
             basePanel.AddControls(addedList);
@@ -281,13 +284,13 @@ namespace _min.Models
             List<M2NMapping> mappings = stats.Mappings[proposalPanel.tableName];
 
             bool good = true;
-            
+
             if (proposalPanel.type == PanelTypes.Editable)
             // this is indeed the only panelType containing fields => only editable
             {
                 foreach (IField field in proposalPanel.fields)
                 {
-                    if(!(field is IColumnField)) continue;  // M2Ns are OK - strict UI
+                    if (!(field is IColumnField)) continue;  // M2Ns are OK - strict UI
                     IColumnField cf = (IColumnField)field;
                     string messageBeginning = "Column " + cf.ColumnName + " managed by field " + cf.Caption + " ";
                     if (!(cols.Contains(cf.ColumnName)))
@@ -301,7 +304,7 @@ namespace _min.Models
                         {
                             if (cols[cf.ColumnName].AllowDBNull == false &&     // things that have to be filled in must be required
                                 !cols[cf.ColumnName].AutoIncrement &&
-                                !(cf is CheckboxField)&&
+                                !(cf is CheckboxField) &&
                                 !cf.Required)
                             {
                                 errorMsgs.Add(messageBeginning
@@ -314,12 +317,34 @@ namespace _min.Models
                             // other validation requirements will be fullfilled based on the field type - the panel editation GUI will not let the user
                             // select a field type that is inconsistent with the column datatype
 
-                            if (cols[cf.ColumnName].Unique && !cf.Unique) {
+                            if (cols[cf.ColumnName].Unique && !cf.Unique)
+                            {
                                 errorMsgs.Add(messageBeginning + " is constrained to be unique, but the corresponding field does not have "
                                     + "the \"Unique\" validation rule set.");
                                 good = false;
                             }
-                             
+                            else if (cf.Unique && !cols[cf.ColumnName].Unique)      // require uniqueness that is not guaranteed by the database
+                            {
+                                IBaseDriver tmpBaseDriver = null;
+                                switch (CE.project.ServerType)
+                                {
+                                    case DbServer.MySql:
+                                        tmpBaseDriver = new BaseDriverMySql(CE.project.ConnstringWeb);
+                                        break;
+                                    case DbServer.MsSql:
+                                        tmpBaseDriver = new BaseDriverMsSql(CE.project.ConnstringWeb);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                bool truelyUnique = tmpBaseDriver.CheckUniquenessManually(proposalPanel.tableName, cf.ColumnName);
+                                if (!truelyUnique)
+                                {
+                                    errorMsgs.Add(String.Format("{0} is not unique in its values - the constraint cannot be enforced.", messageBeginning));
+                                    good = false;
+                                }
+                            }
+
                         }
                     }
                 }
@@ -333,7 +358,7 @@ namespace _min.Models
                                                           !proposalPanel.fields.Exists(x => x is IColumnField && ((IColumnField)x).ColumnName == col.ColumnName)
                                                           && (!customs.ContainsKey(col) || (bool)customs[col]["required"] == false)
                                                           select col.ColumnName;
-                
+
                 // if the colum is contained in customs, only the custom factory validation will be left 
                 //so this validation does not need to be called again
 
@@ -355,8 +380,8 @@ namespace _min.Models
                 }
             }
             else throw new Exception("Validation-non editable panel as an editable one.");
-            
-            
+
+
             return good;
         }
 

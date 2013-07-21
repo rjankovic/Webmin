@@ -105,6 +105,5 @@ namespace _min.Models
             if ((int)fetchSingle("SELECT COUNT(*) FROM [sysobjects] WHERE [type] = 'U'") > 0)
                 throw new Exception("The database must be empty.");
         }
-
     }
 }

@@ -179,7 +179,8 @@ namespace _min.Sys
             DropDownList ddl = DetailsView.FindControl("ddlServerType") as DropDownList;
             ddl.DataSource = Enum.GetValues(typeof(DbServer));
             ddl.DataBind();
-            ddl.SelectedIndex = ddl.Items.IndexOf(ddl.Items.FindByText(project.ServerType.ToString()));
+            if(project != null)
+                ddl.SelectedIndex = ddl.Items.IndexOf(ddl.Items.FindByText(project.ServerType.ToString()));
             ddl.Items.RemoveAt(0);
         }
 

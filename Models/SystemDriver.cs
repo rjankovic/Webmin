@@ -610,7 +610,7 @@ namespace _min.Models
         public int InsertProject(CE.Project project) {
             DataTable projects = GetProjects();
             DataRow newRow = projects.NewRow();
-            newRow["server_tyep"] = project.ServerType.ToString();
+            newRow["server_type"] = project.ServerType.ToString();
             newRow["name"] = project.Name;
             newRow["connstring_web"] = project.ConnstringWeb;
             newRow["connstring_information_schema"] = project.ConnstringIS;
